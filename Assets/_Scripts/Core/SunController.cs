@@ -18,5 +18,7 @@ namespace _Scripts.Core
             float season = 20 * Random.Range(1, 4);
             return new Vector2(day, season);
         }
+
+        public void RandomisePosition() => PositionSun(RandomTimeOfYear());
     }
 }

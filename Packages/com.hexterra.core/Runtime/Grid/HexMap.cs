@@ -1,33 +1,72 @@
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace HexTerra
 {
+    public enum MapShape { Hexagon, Rectangle, Parallelogram }
+    public enum HeightmapSourceKind { Noise, Texture, Flat }
+
     public class HexMap : MonoBehaviour
     {
-        public enum MapSize { Small, Medium, Large, ExtraLarge, Custom }
+        // Hexagon reads width as hexes from centre to edge, so 2 spans 3 across; height is ignored.
+        // Rectangle and Parallelogram use both.
+        [SerializeField] private MapShape shape = MapShape.Hexagon;
+        [SerializeField, Range(1, 400)] private int width = 20;
+        [SerializeField, Range(1, 400)] private int height = 20;
+        [SerializeField] private int seed;
 
-        // Hex prefab and materials handed to the package on generation
-        [SerializeField] private GameObject hexPrefab;
+        [SerializeField] private HeightmapSourceKind source = HeightmapSourceKind.Noise;
+        [SerializeField] private NoisePreset noisePreset;
+        [SerializeField] private Texture2D heightmapImage;
+        [SerializeField] private int textureBands = 20;
+        [SerializeField] private bool bilinear = true;
+        [SerializeField] private int flatHeight;
+
+        // Editor-only: an unsaved NoisePreset the inspector is tuning, used in place of the field
+        // so noise can be previewed on the map before it is written to an asset.
+        [NonSerialized] public NoisePreset noisePresetOverride;
+
+        // Hex mesh prefabs and materials handed to the package on generation
+        [SerializeField] private GameObject hexTopPrefab;
+        [SerializeField] private GameObject hexWallPrefab;
         [SerializeField] private Material hexTopMaterial;
         [SerializeField] private Material hexWallMaterial;
         [SerializeField] private Material hexEdgeMaterial;
-        // Elevation config handed to the package on generation
-        [SerializeField] private FBMNoiseData noiseData;
-        // Size preset; the edge count used when mapSize is Custom
-        [SerializeField] private MapSize mapSize = MapSize.Medium;
-        [SerializeField, Range(2, 200)] private int customMapSize = 20;
 
-        [field: SerializeField] public bool AnimateOnPlay { get; set; }
+        /// <summary>
+        /// Invoked after a build finishes, with the map as the argument. Wired in the Inspector so
+        /// scene systems react without referencing HexMap in code.
+        /// </summary>
+        public MapGeneratedEvent mapGenerated = new();
 
         private HexMapGenerator _mapGenerator;
         private HexGridManager _hexGridManager;
 
+        private NoisePreset ActiveNoisePreset => noisePresetOverride != null ? noisePresetOverride : noisePreset;
+
+        // False when the chosen source is missing the asset it needs.
+        public bool CanGenerate => source switch
+        {
+            HeightmapSourceKind.Noise => ActiveNoisePreset != null,
+            HeightmapSourceKind.Texture => heightmapImage != null,
+            _ => true
+        };
+
+        private void Start() => BeginGeneration();
+
         public void BeginGeneration()
         {
+            if (!CanGenerate)
+                return;
+
             ClearMap();
-            _hexGridManager = new HexGridManager(hexTopMaterial, hexWallMaterial, hexEdgeMaterial, transform);
-            _mapGenerator = new HexMapGenerator(hexPrefab, noiseData, EdgeCount(), _hexGridManager, transform);
+            _hexGridManager = new HexGridManager(hexTopPrefab, hexWallPrefab, hexTopMaterial, hexWallMaterial, hexEdgeMaterial, transform);
+
+            _mapGenerator = new HexMapGenerator(CreateHeightmapSource(), CreateShape(), _hexGridManager, transform);
             _mapGenerator.GenerateMap();
+
+            mapGenerated.Invoke(this);
         }
 
         public void ClearMap()
@@ -41,12 +80,12 @@ namespace HexTerra
         }
 
         /// <summary>
-        /// Returns the world position of the hex at the given grid coordinates, or null if
-        /// the map hasn't been generated yet or the coordinates are out of range.
+        /// Returns the world position of the hex at the given axial coordinates, or null if
+        /// the map hasn't been generated yet or the coordinates fall outside it.
         /// </summary>
-        public Vector3? GetHexWorldPosition(int x, int z)
+        public Vector3? GetHexWorldPosition(int q, int r)
         {
-            var hex = _hexGridManager?.GetHexAt(x, z);
+            var hex = _hexGridManager?.GetHexAt(q, r);
             return hex ? hex.transform.position : null;
         }
 
@@ -58,15 +97,22 @@ namespace HexTerra
             var hex = _hexGridManager?.MidpointHex;
             return hex ? hex.transform.position : null;
         }
-        
-        private int EdgeCount() => mapSize switch
+
+        private IMapShape CreateShape() => shape switch
         {
-            MapSize.Small => 10,
-            MapSize.Medium => 20,
-            MapSize.Large => 30,
-            MapSize.ExtraLarge => 40,
-            MapSize.Custom => customMapSize,
-            _ => 20
+            MapShape.Rectangle => new RectangleShape(width, height),
+            MapShape.Parallelogram => new ParallelogramShape(width, height),
+            _ => new HexagonShape(width - 1)
         };
+
+        private IHeightmapSource CreateHeightmapSource() => source switch
+        {
+            HeightmapSourceKind.Texture => new TextureSource(heightmapImage, textureBands, bilinear),
+            HeightmapSourceKind.Flat => new FlatSource(flatHeight),
+            _ => new NoiseSource(ActiveNoisePreset.noise, ActiveNoisePreset.bands, ActiveNoisePreset.noiseScale, seed)
+        };
+
+        [Serializable]
+        public class MapGeneratedEvent : UnityEvent<HexMap> { }
     }
 }

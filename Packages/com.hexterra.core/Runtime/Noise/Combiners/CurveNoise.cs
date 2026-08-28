@@ -1,0 +1,27 @@
+using System;
+using UnityEngine;
+
+namespace HexTerra
+{
+    /// <summary>
+    /// Remaps <see cref="source"/> through <see cref="curve"/>. Both curve axes run 0 to 1.
+    /// </summary>
+    [Serializable]
+    public class CurveNoise : Noise2D
+    {
+        [SerializeReference] public Noise2D source = new PerlinNoise();
+        public AnimationCurve curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+
+        public override float Sample(float x, float y)
+        {
+            if (source == null)
+                return 0f;
+
+            var value = source.Sample(x, y);
+            if (curve == null || curve.length == 0)
+                return value;
+
+            return Mathf.Clamp01(curve.Evaluate(value));
+        }
+    }
+}

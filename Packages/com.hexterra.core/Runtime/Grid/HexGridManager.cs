@@ -6,31 +6,23 @@ namespace HexTerra
 {
     public class HexGridManager
     {
-        private GameObject[,] _hexArray;
-        public GameObject[,] HexArray
-        {
-            get => _hexArray;
-            set
-            {
-                _hexArray = value;
-                Diameter = _hexArray?.GetLength(0) ?? 0;
-                MidpointHex = ComputeMidpointHex();
-            }
-        }
+        public GameObject[,] HexArray { get; private set; }
 
         /// <summary>
-        /// The grid's side length (HexArray is always Diameter x Diameter), captured whenever
-        /// HexArray is (re)assigned. Not the same as HexMapGenerator's edgeCount.
+        /// Axial bounding box of the current grid. The array index for an axial coord is
+        /// (q - AxialBounds.xMin, r - AxialBounds.yMin).
         /// </summary>
-        public int Diameter { get; private set; }
+        public RectInt AxialBounds { get; private set; }
 
         /// <summary>
-        /// The hex at the centre of the grid, captured whenever HexArray is (re)assigned;
-        /// null if there's no generated map yet.
+        /// The cell nearest the map's centre, or null if that cell falls outside the shape.
         /// </summary>
         public GameObject MidpointHex { get; private set; }
 
-        // Materials for hex top, wall, and edge — assigned by the consumer, never loaded by path
+        // Mesh prefabs and materials for the hex top / wall — assigned by the consumer, never
+        // loaded by path. Edges reuse the wall mesh with their own material.
+        private readonly GameObject _hexTopPrefab;
+        private readonly GameObject _hexWallPrefab;
         private readonly Material _hexTopMaterial;
         private readonly Material _hexWallMaterial;
         private readonly Material _hexEdgeMaterial;
@@ -46,12 +38,21 @@ namespace HexTerra
 
         private const float StepScale = 0.25f;
 
-        public HexGridManager(Material topMaterial, Material wallMaterial, Material edgeMaterial, Transform parent)
+        public HexGridManager(GameObject topPrefab, GameObject wallPrefab, Material topMaterial, Material wallMaterial, Material edgeMaterial, Transform parent)
         {
+            _hexTopPrefab = topPrefab;
+            _hexWallPrefab = wallPrefab;
             _hexTopMaterial = topMaterial;
             _hexWallMaterial = wallMaterial;
             _hexEdgeMaterial = edgeMaterial;
             _parent = parent;
+        }
+
+        public void SetGrid(GameObject[,] array, RectInt axialBounds)
+        {
+            HexArray = array;
+            AxialBounds = axialBounds;
+            MidpointHex = ComputeMidpointHex();
         }
 
         #region Initialisation
@@ -63,10 +64,9 @@ namespace HexTerra
 
                 var hexStats = hex.GetComponent<HexCell>();
 
-                // Elevation must be applied before tops/walls are generated — they bake this
+                // Step height must be applied before tops/walls are generated — they bake this
                 // hex's current position into the combined mesh, so won't pick up later changes
                 SetHexStepHeight(hex, hexStats);
-                SetHexParity(hexStats);
                 SetHexNeighbours(hexStats);
                 GenerateTops(hexStats);
                 GenerateWalls(hexStats);
@@ -80,29 +80,27 @@ namespace HexTerra
             hex.transform.position = new Vector3(hex.transform.position.x, hexStats.stepHeight * StepScale, hex.transform.position.z);
         }
 
-        private void SetHexParity(HexCell hexStats)
+        private void SetHexNeighbours(HexCell cell)
         {
-            hexStats.xParity = hexStats.xGridPos % 2 == 0;
-        }
-
-        private void SetHexNeighbours(HexCell hexStats)
-        {
-            hexStats.firstNeighbours = FindFirstNeighbours(hexStats.xParity, hexStats.xGridPos, hexStats.zGridPos);
-            hexStats.secondNeighbours = FindSecondNeighbours(hexStats.xParity, hexStats.xGridPos, hexStats.zGridPos);
+            for (int i = 0; i < HexMath.Directions.Length; i++)
+            {
+                var dir = HexMath.Directions[i];
+                cell.neighbours[i] = GetHexAt(cell.q + dir.x, cell.r + dir.y);
+            }
         }
         #endregion
 
         #region Mesh Generation
         private void GenerateTops(HexCell _hexStats)
         {
-            AddCombineInstance(_topInstances, _hexStats.hex[0], _hexStats.transform.position, Quaternion.identity, null);
+            AddCombineInstance(_topInstances, _hexTopPrefab, _hexStats.transform.position, Quaternion.identity, null);
         }
 
         private void GenerateWalls(HexCell _hexStats)
         {
             _neighbourOrientation = 0;
 
-            foreach (var hexNeighbour in _hexStats.firstNeighbours)
+            foreach (var hexNeighbour in _hexStats.neighbours)
             {
                 var neighbourStats = hexNeighbour ? hexNeighbour.GetComponent<HexCell>() : null;
                 _heightDifference = neighbourStats ? (_hexStats.stepHeight - neighbourStats.stepHeight) * StepScale : _hexStats.stepHeight * StepScale;
@@ -121,7 +119,7 @@ namespace HexTerra
 
             // The wall's pivot sits at its top edge, so scaling localScale.y alone stretches
             // it downward to fill the height difference — no repositioning needed
-            AddCombineInstance(instances, _hexStats.hex[1], _hexStats.transform.position, rotation, heightDiff);
+            AddCombineInstance(instances, _hexWallPrefab, _hexStats.transform.position, rotation, heightDiff);
         }
 
         // Briefly instantiates the prefab at the given world transform, captures a private
@@ -205,45 +203,30 @@ namespace HexTerra
 
         #region Neighbours
         /// <summary>
-        /// Returns the hex at the given grid coordinates, or null if there's no generated
-        /// map yet or the coordinates are out of range.
+        /// The hex at the given axial coordinates, or null if there's no generated map yet or
+        /// the coordinates fall outside it.
         /// </summary>
-        public GameObject GetHexAt(int x, int z)
+        public GameObject GetHexAt(int q, int r)
         {
-            if (HexArray == null || x < 0 || x >= Diameter || z < 0 || z >= Diameter)
+            if (HexArray == null) return null;
+
+            int x = q - AxialBounds.xMin;
+            int y = r - AxialBounds.yMin;
+            if (x < 0 || x >= AxialBounds.width || y < 0 || y >= AxialBounds.height)
                 return null;
 
-            return HexArray[x, z];
+            return HexArray[x, y];
         }
 
         private GameObject ComputeMidpointHex()
         {
-            if (_hexArray == null) return null;
+            if (HexArray == null) return null;
 
-            var midpoint = (Diameter - 1) / 2;
-            return GetHexAt(midpoint, midpoint);
-        }
-
-        private GameObject[] FindNeighbours(int[] xTransform, int[] zTransform, int _xGridPos, int _zGridPos)
-        {
-            var neighbours = new GameObject[xTransform.Length];
-
-            for (int i = 0; i < xTransform.Length; i++)
-                neighbours[i] = GetHexAt(_xGridPos + xTransform[i], _zGridPos + zTransform[i]);
-
-            return neighbours;
-        }
-
-        private GameObject[] FindFirstNeighbours(bool _xParity, int _xGridPos, int _zGridPos)
-        {
-            var zTransform = _xParity ? HexCoordinateMatrix.FirstZEven : HexCoordinateMatrix.FirstZOdd;
-            return FindNeighbours(HexCoordinateMatrix.FirstX, zTransform, _xGridPos, _zGridPos);
-        }
-
-        private GameObject[] FindSecondNeighbours(bool _xParity, int _xGridPos, int _zGridPos)
-        {
-            var matrixTransform = _xParity ? HexCoordinateMatrix.SecondZEven : HexCoordinateMatrix.SecondZOdd;
-            return FindNeighbours(HexCoordinateMatrix.SecondX, matrixTransform, _xGridPos, _zGridPos);
+            var centre = new Vector2(
+                AxialBounds.xMin + (AxialBounds.width - 1) / 2f,
+                AxialBounds.yMin + (AxialBounds.height - 1) / 2f);
+            var axial = HexMath.Round(centre);
+            return GetHexAt(axial.x, axial.y);
         }
         #endregion
     }
