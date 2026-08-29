@@ -32,7 +32,7 @@ namespace HexTerra
         public static Vector2Int ToAxial(Vector3Int cube) => new(cube.x, cube.z);
 
         /// <summary>
-        /// Grid-step distance between two hexes — the number of single-hex moves that separate them.
+        /// Grid-step distance between two hexes: the number of single-hex moves that separate them.
         /// </summary>
         public static int Distance(Vector2Int from, Vector2Int to)
         {

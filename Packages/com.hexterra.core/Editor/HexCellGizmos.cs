@@ -6,7 +6,7 @@ namespace HexTerra.Editor
     internal static class HexCellGizmos
     {
         private const float MinLabelGapPixels = 24f;
-        private const int MaxAxisWalk = 512; // backstop; the viewport check normally stops sooner
+        private const int MaxAxisWalk = 512; // backstop, the viewport check normally stops sooner
 
         // Neighbour indices in HexMath.Directions: 1/4 = ±q, 0/3 = ±r, 2/5 = the s-constant diagonal
         private const int QPlus = 1, QMinus = 4, RPlus = 0, RMinus = 3;
@@ -23,7 +23,7 @@ namespace HexTerra.Editor
         private static Texture2D _backdrop;
 
         // Labels a selected hex and the hexes along its q and r axes with the full q,r
-        // coordinate — the axis component in its colour, everything else grey. Each axis runs
+        // coordinate: the axis component in its colour, everything else grey. Each axis runs
         // to the edge of the view, thinning labels so they stay MinLabelGapPixels apart.
         [DrawGizmo(GizmoType.Selected)]
         private static void DrawCoordinates(HexCell cell, GizmoType _)

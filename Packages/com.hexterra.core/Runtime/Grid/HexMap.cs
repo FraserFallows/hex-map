@@ -9,7 +9,7 @@ namespace HexTerra
 
     public class HexMap : MonoBehaviour
     {
-        // Hexagon reads width as hexes from centre to edge — 2 spans 3 across — and ignores height.
+        // Hexagon reads width as hexes from centre to edge (2 spans 3 across) and ignores height.
         // Rectangle and Parallelogram use both.
         [SerializeField] private MapShape shape = MapShape.Hexagon;
         [SerializeField, Range(1, 400)] private int width = 20;

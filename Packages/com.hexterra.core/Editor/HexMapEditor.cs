@@ -13,7 +13,7 @@ namespace HexTerra.Editor
         private UnityEditor.Editor _presetEditor;
 
         // Noise is always edited on an in-memory working copy. Save writes it back to the asset
-        // (or creates one); deselecting the HexMap drops the copy so the asset reloads untouched.
+        // (or creates one). Deselecting the HexMap drops the copy, so the asset reloads untouched.
         private NoisePreset _working;
         private NoisePreset _sourceAsset;
         private bool _workingDirty;
@@ -126,8 +126,6 @@ namespace HexTerra.Editor
             }
         }
 
-        // The noise fields edit an in-memory copy that reaches the asset only on Save. Deselecting
-        // the HexMap discards the copy, so the preset reloads from disk untouched.
         private void DrawNoiseSource()
         {
             var hexMap = (HexMap)target;
@@ -198,7 +196,7 @@ namespace HexTerra.Editor
             if (_sourceAsset)
             {
                 // CopySerialized brings the whole serialised state across (including the
-                // [SerializeReference] noise tree); restore the asset's own identity after.
+                // [SerializeReference] noise tree). Restore the asset's own identity after.
                 var assetName = _sourceAsset.name;
                 Undo.RecordObject(_sourceAsset, "Save Noise Preset");
                 EditorUtility.CopySerialized(_working, _sourceAsset);

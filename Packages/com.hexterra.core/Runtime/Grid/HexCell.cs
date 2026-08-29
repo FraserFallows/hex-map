@@ -9,7 +9,7 @@ namespace HexTerra
         public int q;
         public int r;
 
-        // Height in discrete steps — WorldHeight converts it to metres.
+        // Height in discrete steps. WorldHeight converts it to metres.
         public int stepHeight;
 
         public float WorldHeight => stepHeight * StepMetres;

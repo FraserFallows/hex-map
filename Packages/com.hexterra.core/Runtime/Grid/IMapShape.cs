@@ -4,8 +4,7 @@ using UnityEngine;
 namespace HexTerra
 {
     /// <summary>
-    /// A map outline: the axial (q, r) cells it contains and their bounding box, used to
-    /// size and index the backing array.
+    /// A map outline: the axial (q, r) cells it contains, plus their bounding box.
     /// </summary>
     public interface IMapShape
     {

@@ -27,7 +27,7 @@ namespace HexTerra.Editor
         private static double _dirtiedAt;
         private static double _rebuiltAt = double.MinValue;
 
-        // For edits that don't raise ObjectChangeEvents — e.g. tuning an unsaved in-memory preset.
+        // For edits that don't raise ObjectChangeEvents, e.g. tuning an unsaved in-memory preset.
         internal static void Poke()
         {
             if (!Enabled)
@@ -66,7 +66,7 @@ namespace HexTerra.Editor
             if (!_dirty || EditorApplication.timeSinceStartup - _dirtiedAt < Debounce)
                 return;
 
-            // Still typing into a field — hold until it loses focus, so the edit
+            // Still typing into a field: hold until it loses focus, so the edit
             // regenerates on deselect rather than dropping the in-progress value.
             if (EditorGUIUtility.editingTextField)
                 return;

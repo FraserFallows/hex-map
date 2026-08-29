@@ -5,7 +5,7 @@ using UnityEngine.Rendering;
 namespace HexTerra
 {
     /// <summary>
-    /// Turns a populated HexGrid into geometry — one combined mesh per material on a single
+    /// Turns a populated HexGrid into geometry: one combined mesh per material on a single
     /// HexMapMesh GameObject.
     /// </summary>
     public class HexMeshBuilder
@@ -74,7 +74,7 @@ namespace HexTerra
             var instances = isEdge ? _edgeInstances : _wallInstances;
 
             // The wall's pivot sits at its top edge, so scaling localScale.y alone stretches
-            // it downward to fill the height difference — no repositioning needed
+            // it downward to fill the height difference, no repositioning needed
             AddCombineInstance(instances, _hexWallPrefab, cell.transform.position, rotation, heightDiff);
         }
 
@@ -99,7 +99,7 @@ namespace HexTerra
             Object.DestroyImmediate(temp);
         }
 
-        // Copies UV0 into UV channel 2 (mesh.uv3), scaling V by scaleY — gives a stretched
+        // Copies UV0 into UV channel 2 (mesh.uv3), scaling V by scaleY. Gives a stretched
         // piece a second, independently-tiling coordinate for a shader to read a repeating
         // texture from, without disturbing UV0
         private static void WriteScaledUV3(Mesh mesh, float scaleY)
@@ -120,7 +120,7 @@ namespace HexTerra
             AddCombinedGroup(combine, materials, _wallInstances, _hexWallMaterial);
             AddCombinedGroup(combine, materials, _edgeInstances, _hexEdgeMaterial);
 
-            // Baked into the per-material meshes now — release them so they don't leak as native objects.
+            // Baked into the per-material meshes now. Release them so they don't leak as native objects.
             foreach (var mesh in _ownedMeshes)
                 Object.DestroyImmediate(mesh);
 

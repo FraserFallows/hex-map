@@ -2,6 +2,10 @@ using UnityEngine;
 
 namespace _Scripts.Core
 {
+    /// <summary>
+    /// Aims a directional light from a packed time-of-year vector: x is the day angle,
+    /// y the seasonal tilt.
+    /// </summary>
     public class SunController : MonoBehaviour
     {
         public void PositionSun(Vector2 timeOfYear)

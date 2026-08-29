@@ -6,7 +6,7 @@ namespace _Scripts.Core
 {
     /// <summary>
     /// RTS-style rig: pan the ground plane, scroll to zoom, Q/E and R/F (or right-drag) to
-    /// orbit yaw and pitch. FrameMap recentres it on a freshly generated map. Bindings editable in the inspector.
+    /// orbit yaw and pitch. Bindings are editable in the inspector.
     /// </summary>
     public class CameraController : MonoBehaviour
     {
@@ -78,7 +78,9 @@ namespace _Scripts.Core
         private void Reset() => ConfigureDefaultBindings();
 #endif
 
-        /// <summary>Recentres and re-angles the rig on a map's midpoint. Wire to HexMap.mapGenerated.</summary>
+        /// <summary>
+        /// Recentres and re-angles the rig on the map's midpoint.
+        /// </summary>
         public void FrameMap(HexMap map)
         {
             var centre = map.GetMidpointWorldPosition();
@@ -94,7 +96,7 @@ namespace _Scripts.Core
         {
             var input = pan.ReadValue<Vector2>();
 
-            // Screen-edge push — cursor position, not a rebindable control.
+            // Screen-edge push: cursor position, not a rebindable control.
             if (edgePan && Application.isFocused && Mouse.current != null)
             {
                 var cursor = Mouse.current.position.ReadValue();

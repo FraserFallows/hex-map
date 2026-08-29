@@ -11,7 +11,7 @@ namespace HexTerra
     public class DomainWarpNoise : Noise2D
     {
         // Reused warp field sampled far from the origin so the Y displacement is uncorrelated with X.
-        private static readonly Vector2 WarpDecorrelation = new Vector2(137.2f, 91.7f);
+        private static readonly Vector2 WarpDecorrelation = new(137.2f, 91.7f);
 
         [SerializeReference] public Noise2D source = new PerlinNoise();
         [SerializeReference] public Noise2D warp = new PerlinNoise();

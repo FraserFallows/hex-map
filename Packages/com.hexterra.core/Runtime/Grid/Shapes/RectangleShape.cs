@@ -29,11 +29,11 @@ namespace HexTerra
 
         public IEnumerable<Vector2Int> Cells()
         {
-            for (int row = 0; row < _height; row++)
+            for (int r = 0; r < _height; r++)
             {
-                int shift = row >> 1;
-                for (int col = 0; col < _width; col++)
-                    yield return new Vector2Int(col - shift, row);
+                int shift = r >> 1;
+                for (int q = 0; q < _width; q++)
+                    yield return new Vector2Int(q - shift, r);
             }
         }
     }

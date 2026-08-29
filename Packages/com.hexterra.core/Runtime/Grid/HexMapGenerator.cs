@@ -3,7 +3,7 @@ using UnityEngine;
 namespace HexTerra
 {
     /// <summary>
-    /// Builds the logical grid and returns it as a HexGrid — a HexCell GameObject per shape cell,
+    /// Builds the logical grid and returns it as a HexGrid: a HexCell GameObject per shape cell,
     /// with the heightmap sampled onto them, each raised to its step height and its neighbours wired.
     /// </summary>
     public class HexMapGenerator
@@ -55,7 +55,7 @@ namespace HexTerra
         {
             if (_heightmapSource == null)
             {
-                Debug.LogError("HexMapGenerator: no IHeightmapSource provided — cannot generate the heightmap.");
+                Debug.LogError("HexMapGenerator: no IHeightmapSource provided. Cannot generate the heightmap.");
                 return;
             }
 

@@ -3,7 +3,7 @@ using UnityEngine;
 namespace HexTerra
 {
     /// <summary>
-    /// The generated grid as data — a 2D array of hex GameObjects addressed by axial coordinate,
+    /// The generated grid as data: a 2D array of hex GameObjects addressed by axial coordinate,
     /// plus the axial bounding box that maps a coordinate to its array slot. Holds no rendering
     /// or generation state.
     /// </summary>
