@@ -15,9 +15,15 @@ namespace HexTerra
         [SerializeReference] public Noise2D source = new PerlinNoise();
 
         public FractalMode mode = FractalMode.Fbm;
-        public int octaves = 5;
-        public float lacunarity = 2f;
-        public float persistence = 0.5f;
+
+        // Fewer than 1 octave leaves the field empty, and past ~8 the extra octaves are sub-hex detail.
+        [Range(1, 8)] public int octaves = 5;
+
+        // Frequency multiplier per octave. Below 1 the octaves would coarsen instead of refining.
+        [Range(1f, 4f)] public float lacunarity = 2f;
+
+        // Amplitude falloff per octave. Above 1 the fine octaves would swamp the base shape.
+        [Range(0f, 1f)] public float persistence = 0.5f;
 
         public override float Sample(float x, float y)
         {
