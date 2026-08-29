@@ -3,7 +3,7 @@ using UnityEngine;
 namespace HexTerra
 {
     /// <summary>
-    /// Axial hex maths for flat-top hexes. Coordinates are stored as axial (q, r); the cube
+    /// Axial hex maths for flat-top hexes. Coordinates are stored as axial (q, r). The cube
     /// form (x, y, z) = (q, -q - r, r), which always sums to zero, is used internally where the
     /// three-axis symmetry is cleaner.
     /// </summary>
@@ -13,8 +13,8 @@ namespace HexTerra
         private const float RowHalf = 0.866025404f;
 
         /// <summary>
-        /// Neighbour offsets, clockwise from the top edge. The index doubles as the wall
-        /// orientation in HexGridManager (index * 60 degrees), so this order is load-bearing.
+        /// Neighbour offsets, clockwise from the top edge. The index doubles as a wall
+        /// orientation (index * 60 degrees), so this order is load-bearing.
         /// </summary>
         public static readonly Vector2Int[] Directions =
         {
@@ -46,9 +46,6 @@ namespace HexTerra
         /// </summary>
         public static Vector3 ToWorld(float q, float r) => new(ColumnSpacing * q, 0f, RowHalf * (q + 2f * r));
 
-        /// <summary>
-        /// World-space centre of the hex at the given axial coordinate.
-        /// </summary>
         public static Vector3 ToWorld(Vector2Int axial) => ToWorld(axial.x, axial.y);
 
         /// <summary>

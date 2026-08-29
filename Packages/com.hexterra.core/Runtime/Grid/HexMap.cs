@@ -9,7 +9,7 @@ namespace HexTerra
 
     public class HexMap : MonoBehaviour
     {
-        // Hexagon reads width as hexes from centre to edge, so 2 spans 3 across; height is ignored.
+        // Hexagon reads width as hexes from centre to edge — 2 spans 3 across — and ignores height.
         // Rectangle and Parallelogram use both.
         [SerializeField] private MapShape shape = MapShape.Hexagon;
         [SerializeField, Range(1, 400)] private int width = 20;
@@ -40,8 +40,7 @@ namespace HexTerra
         /// </summary>
         public MapGeneratedEvent mapGenerated = new();
 
-        private HexMapGenerator _mapGenerator;
-        private HexGridManager _hexGridManager;
+        private HexGrid _grid;
 
         private NoisePreset ActiveNoisePreset => noisePresetOverride != null ? noisePresetOverride : noisePreset;
 
@@ -61,10 +60,12 @@ namespace HexTerra
                 return;
 
             ClearMap();
-            _hexGridManager = new HexGridManager(hexTopPrefab, hexWallPrefab, hexTopMaterial, hexWallMaterial, hexEdgeMaterial, transform);
 
-            _mapGenerator = new HexMapGenerator(CreateHeightmapSource(), CreateShape(), _hexGridManager, transform);
-            _mapGenerator.GenerateMap();
+            var generator = new HexMapGenerator(CreateHeightmapSource(), CreateShape(), transform);
+            _grid = generator.Generate();
+
+            var meshBuilder = new HexMeshBuilder(hexTopPrefab, hexWallPrefab, hexTopMaterial, hexWallMaterial, hexEdgeMaterial, transform);
+            meshBuilder.Build(_grid);
 
             mapGenerated.Invoke(this);
         }
@@ -78,38 +79,38 @@ namespace HexTerra
                         DestroyImmediate(hex.gameObject);
                 }
         }
-
+        
         /// <summary>
         /// Returns the world position of the hex at the given axial coordinates, or null if
         /// the map hasn't been generated yet or the coordinates fall outside it.
         /// </summary>
         public Vector3? GetHexWorldPosition(int q, int r)
         {
-            var hex = _hexGridManager?.GetHexAt(q, r);
+            var hex = _grid?.GetHexAt(q, r);
             return hex ? hex.transform.position : null;
         }
 
         /// <summary>
-        /// The world position of the map's centre hex.
+        /// The world position of the map's centre hex, or null if there's no map yet.
         /// </summary>
         public Vector3? GetMidpointWorldPosition()
         {
-            var hex = _hexGridManager?.MidpointHex;
+            var hex = _grid?.MidpointHex;
             return hex ? hex.transform.position : null;
         }
-
-        private IMapShape CreateShape() => shape switch
-        {
-            MapShape.Rectangle => new RectangleShape(width, height),
-            MapShape.Parallelogram => new ParallelogramShape(width, height),
-            _ => new HexagonShape(width - 1)
-        };
 
         private IHeightmapSource CreateHeightmapSource() => source switch
         {
             HeightmapSourceKind.Texture => new TextureSource(heightmapImage, textureBands, bilinear),
             HeightmapSourceKind.Flat => new FlatSource(flatHeight),
             _ => new NoiseSource(ActiveNoisePreset.noise, ActiveNoisePreset.bands, ActiveNoisePreset.noiseScale, seed)
+        };
+        
+        private IMapShape CreateShape() => shape switch
+        {
+            MapShape.Rectangle => new RectangleShape(width, height),
+            MapShape.Parallelogram => new ParallelogramShape(width, height),
+            _ => new HexagonShape(width - 1)
         };
 
         [Serializable]

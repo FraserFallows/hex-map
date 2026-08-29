@@ -9,9 +9,12 @@ namespace HexTerra
         public int q;
         public int r;
 
-        /// <summary>
-        /// Vertical displacement in 0.25 metre increments.
-        /// </summary>
+        // Height in discrete steps — WorldHeight converts it to metres.
         public int stepHeight;
+
+        public float WorldHeight => stepHeight * StepMetres;
+
+        // World metres per step.
+        public const float StepMetres = 0.25f;
     }
 }

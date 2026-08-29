@@ -2,22 +2,24 @@ using UnityEngine;
 
 namespace HexTerra
 {
+    /// <summary>
+    /// Builds the logical grid and returns it as a HexGrid — a HexCell GameObject per shape cell,
+    /// with the heightmap sampled onto them, each raised to its step height and its neighbours wired.
+    /// </summary>
     public class HexMapGenerator
     {
         private readonly IHeightmapSource _heightmapSource;
         private readonly IMapShape _shape;
-        private readonly HexGridManager _hexGridManager;
         private readonly Transform _parent;
 
-        public HexMapGenerator(IHeightmapSource heightmapSource, IMapShape shape, HexGridManager hexGridManager, Transform parent)
+        public HexMapGenerator(IHeightmapSource heightmapSource, IMapShape shape, Transform parent)
         {
             _heightmapSource = heightmapSource;
             _shape = shape;
-            _hexGridManager = hexGridManager;
             _parent = parent;
         }
 
-        public void GenerateMap()
+        public HexGrid Generate()
         {
             var bounds = _shape.AxialBounds;
             var array = new GameObject[bounds.width, bounds.height];
@@ -40,13 +42,16 @@ namespace HexTerra
                 array[axial.x - bounds.xMin, axial.y - bounds.yMin] = hexGo;
             }
 
-            _hexGridManager.SetGrid(array, bounds);
+            var grid = new HexGrid(array, bounds);
 
-            GenerateHeightmap(bounds);
-            _hexGridManager.InitialiseHexes();
+            ApplyHeightmap(grid);
+            RaiseToStepHeight(grid);
+            WireNeighbours(grid);
+
+            return grid;
         }
 
-        private void GenerateHeightmap(RectInt bounds)
+        private void ApplyHeightmap(HexGrid grid)
         {
             if (_heightmapSource == null)
             {
@@ -54,16 +59,43 @@ namespace HexTerra
                 return;
             }
 
+            var bounds = grid.AxialBounds;
             var heightmap = _heightmapSource.SampleHeightmap(bounds.width, bounds.height);
 
             for (int x = 0; x < bounds.width; x++)
             {
                 for (int y = 0; y < bounds.height; y++)
                 {
-                    var hexObject = _hexGridManager.HexArray[x, y];
-                    if (!hexObject) continue;
+                    var hex = grid.HexArray[x, y];
+                    if (!hex) continue;
 
-                    hexObject.GetComponent<HexCell>().stepHeight = heightmap[x, y];
+                    hex.GetComponent<HexCell>().stepHeight = heightmap[x, y];
+                }
+            }
+        }
+
+        private static void RaiseToStepHeight(HexGrid grid)
+        {
+            foreach (var hex in grid.HexArray)
+            {
+                if (!hex) continue;
+
+                var position = hex.transform.position;
+                hex.transform.position = new Vector3(position.x, hex.GetComponent<HexCell>().WorldHeight, position.z);
+            }
+        }
+
+        private static void WireNeighbours(HexGrid grid)
+        {
+            foreach (var hex in grid.HexArray)
+            {
+                if (!hex) continue;
+
+                var cell = hex.GetComponent<HexCell>();
+                for (int i = 0; i < HexMath.Directions.Length; i++)
+                {
+                    var dir = HexMath.Directions[i];
+                    cell.neighbours[i] = grid.GetHexAt(cell.q + dir.x, cell.r + dir.y);
                 }
             }
         }
