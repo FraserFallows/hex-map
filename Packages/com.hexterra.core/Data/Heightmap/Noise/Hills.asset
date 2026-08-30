@@ -28,6 +28,7 @@ MonoBehaviour:
         octaves: 10
         lacunarity: 2.4
         persistence: 0.25
+        octaveRotation: 30
     - rid: 8500000000000000001
       type: {class: PerlinNoise, ns: HexTerra, asm: HexTerra}
       data:

@@ -25,6 +25,10 @@ namespace HexTerra
         // Amplitude falloff per octave. Above 1 the fine octaves would swamp the base shape.
         [Range(0f, 1f)] public float persistence = 0.5f;
 
+        // Turns each octave this many degrees past the last, so their axis-aligned artefacts cancel
+        // instead of stacking into streaks. 0 keeps every octave aligned.
+        [Range(0f, 90f)] public float octaveRotation = 30f;
+
         public override float Sample(float x, float y)
         {
             if (source == null)
@@ -35,9 +39,15 @@ namespace HexTerra
             float amplitude = 1f;
             float totalAmplitude = 0f;
 
+            float radians = octaveRotation * Mathf.Deg2Rad;
+            float cos = Mathf.Cos(radians);
+            float sin = Mathf.Sin(radians);
+            float sx = x;
+            float sy = y;
+
             for (int i = 0; i < octaves; i++)
             {
-                var octave = source.Sample(x * frequency, y * frequency);
+                var octave = source.Sample(sx * frequency, sy * frequency);
                 octave = mode switch
                 {
                     FractalMode.Ridged => 1f - Mathf.Abs(Signed(octave)),
@@ -49,6 +59,7 @@ namespace HexTerra
                 totalAmplitude += amplitude;
                 frequency *= lacunarity;
                 amplitude *= persistence;
+                (sx, sy) = (sx * cos - sy * sin, sx * sin + sy * cos);
             }
 
             return totalAmplitude > 0f ? total / totalAmplitude : 0f;
