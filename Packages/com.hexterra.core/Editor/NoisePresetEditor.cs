@@ -22,7 +22,7 @@ namespace HexTerra.Editor
             EditorGUI.BeginChangeCheck();
 
             EditorGUILayout.PropertyField(serializedObject.FindProperty("noise"), true);
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("bands"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHeight"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("noiseScale"));
 
             serializedObject.ApplyModifiedProperties();
@@ -52,7 +52,7 @@ namespace HexTerra.Editor
 
             // A fixed window of hexes, so presets are comparable at a glance.
             var span = PreviewHexSpan / Mathf.Max(preset.noiseScale, 0.0001f);
-            HeightmapConverter.Render(_preview, preset.noise, span, Vector2.zero, bands: Mathf.Max(1, preset.bands));
+            HeightmapConverter.Render(_preview, preset.noise, span, Vector2.zero, steps: Mathf.Max(1, preset.maxHeight));
         }
     }
 }

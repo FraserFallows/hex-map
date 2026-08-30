@@ -12,8 +12,8 @@ namespace HexTerra
         // Hexagon reads width as hexes from centre to edge (2 spans 3 across) and ignores height.
         // Rectangle and Parallelogram use both.
         [SerializeField] private MapShape shape = MapShape.Hexagon;
-        [SerializeField, Range(1, 400)] private int width = 20;
-        [SerializeField, Range(1, 400)] private int height = 20;
+        [SerializeField, Range(1, 200)] private int width = 20;
+        [SerializeField, Range(1, 200)] private int height = 20;
         [SerializeField] private int seed;
 
         [SerializeField] private HeightmapSourceKind source = HeightmapSourceKind.Noise;
@@ -103,7 +103,7 @@ namespace HexTerra
         {
             HeightmapSourceKind.Texture => new TextureSource(heightmapImage, textureBands, bilinear),
             HeightmapSourceKind.Flat => new FlatSource(flatHeight),
-            _ => new NoiseSource(ActiveNoisePreset.noise, ActiveNoisePreset.bands, ActiveNoisePreset.noiseScale, seed)
+            _ => new NoiseSource(ActiveNoisePreset.noise, ActiveNoisePreset.maxHeight, ActiveNoisePreset.noiseScale, seed)
         };
         
         private IMapShape CreateShape() => shape switch

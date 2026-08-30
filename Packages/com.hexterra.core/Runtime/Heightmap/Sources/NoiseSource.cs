@@ -9,13 +9,13 @@ namespace HexTerra
     {
         private readonly Noise2D _noise;
         private readonly float _scale;
-        private readonly int _bands;
+        private readonly int _maxHeight;
         private readonly int _seed;
 
-        public NoiseSource(Noise2D noise, int bands, float noiseScale, int seed)
+        public NoiseSource(Noise2D noise, int maxHeight, float noiseScale, int seed)
         {
             _noise = noise;
-            _bands = Mathf.Max(1, bands);
+            _maxHeight = Mathf.Max(1, maxHeight);
             _scale = Mathf.Max(noiseScale, 0.0001f);
             _seed = seed;
         }
@@ -26,7 +26,7 @@ namespace HexTerra
 
             if (_noise == null)
             {
-                Debug.LogError("NoiseSource: no noise assigned — returning a flat heightmap.");
+                Debug.LogError("NoiseSource: no noise assigned. Returning a flat heightmap.");
                 return heights;
             }
 
@@ -40,7 +40,7 @@ namespace HexTerra
                 for (int y = 0; y < height; y++)
                 {
                     var value = _noise.Sample(x / _scale + offsetX, y / _scale + offsetY);
-                    heights[x, y] = Mathf.RoundToInt(Mathf.Clamp01(value) * _bands);
+                    heights[x, y] = Mathf.RoundToInt(Mathf.Clamp01(value) * _maxHeight);
                 }
             }
 

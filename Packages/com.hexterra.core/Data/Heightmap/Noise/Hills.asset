@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   noise:
     rid: 8500000000000000000
-  bands: 60
+  maxHeight: 60
   noiseScale: 20
   references:
     version: 2

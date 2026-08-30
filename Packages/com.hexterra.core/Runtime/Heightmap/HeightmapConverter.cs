@@ -10,10 +10,10 @@ namespace HexTerra
     {
         /// <summary>
         /// Fills the target texture with a greyscale render of the noise field, sampled over the
-        /// window [offset, offset + span) on each axis. A non-zero bands quantises the values
-        /// into bands + 1 levels.
+        /// window [offset, offset + span) on each axis. A non-zero steps quantises the values
+        /// into steps + 1 levels.
         /// </summary>
-        public static void Render(Texture2D target, Noise2D noise, float span, Vector2 offset, int bands = 0)
+        public static void Render(Texture2D target, Noise2D noise, float span, Vector2 offset, int steps = 0)
         {
             int width = target.width;
             int height = target.height;
@@ -27,8 +27,8 @@ namespace HexTerra
                         x / (float)width * span + offset.x,
                         y / (float)height * span + offset.y));
 
-                    if (bands > 0)
-                        value = Mathf.Round(value * bands) / bands;
+                    if (steps > 0)
+                        value = Mathf.Round(value * steps) / steps;
 
                     pixels[y * width + x] = new Color(value, value, value);
                 }
