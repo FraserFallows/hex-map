@@ -8,40 +8,49 @@ namespace HexTerra.Editor
     [CustomEditor(typeof(HexMap))]
     public class HexMapEditor : UnityEditor.Editor
     {
+        private enum PendingSave { None, Overwrite, AsNew }
+
         private const string PresetFolder = "Packages/com.hexterra.core/Data/Heightmap/Noise";
 
         private UnityEditor.Editor _presetEditor;
 
-        // Noise is always edited on an in-memory working copy. Save writes it back to the asset
-        // (or creates one). Deselecting the HexMap drops the copy, so the asset reloads untouched.
+        // Noise is edited on an in-memory working copy held by the map (HexMap.noisePresetOverride)
+        // so it survives the inspector being rebuilt (a regenerate does that). Overwrite writes it
+        // to the assigned asset, Save as New creates one, Reset reloads it from the asset.
         private NoisePreset _working;
         private NoisePreset _sourceAsset;
         private bool _workingDirty;
-        private bool _saveQueued;
+        private PendingSave _pendingSave;
+
+        private void OnEnable()
+        {
+            // A regenerate can rebuild this inspector mid-edit. Reattach to the working copy the
+            // map kept so those edits aren't lost; assume it may be dirty since we can't tell.
+            var map = target as HexMap;
+            if (map && map.noisePresetOverride)
+            {
+                _working = map.noisePresetOverride;
+                _sourceAsset = serializedObject.FindProperty("noisePreset").objectReferenceValue as NoisePreset;
+                _workingDirty = true;
+            }
+        }
 
         private void OnDisable()
         {
             if (_presetEditor != null)
                 DestroyImmediate(_presetEditor);
-
-            // Deselecting with unsaved edits: drop them and put the scene map back to the saved asset.
-            var revert = _workingDirty;
-            var map = target as HexMap;
-            DiscardWorking();
-            _sourceAsset = null;
-
-            if (revert && map && map.CanGenerate
-                && !EditorApplication.isCompiling
-                && !EditorApplication.isPlayingOrWillChangePlaymode)
-                map.BeginGeneration();
         }
 
         public override void OnInspectorGUI()
         {
-            if (_saveQueued)
+            if (_pendingSave != PendingSave.None)
             {
-                _saveQueued = false;
-                SaveWorking();
+                var pending = _pendingSave;
+                _pendingSave = PendingSave.None;
+                if (pending == PendingSave.Overwrite)
+                    OverwritePreset();
+                else
+                    SavePresetAsNew();
             }
 
             serializedObject.Update();
@@ -52,7 +61,7 @@ namespace HexTerra.Editor
             if ((MapShape)shapeProp.enumValueIndex == MapShape.Hexagon)
             {
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("width"),
-                    new GUIContent("Radius", "Hexes from centre to edge — 2 spans 3 across"));
+                    new GUIContent("Radius", "Hexes from centre to edge, so 2 spans 3 across"));
             }
             else
             {
@@ -60,7 +69,13 @@ namespace HexTerra.Editor
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("height"));
             }
 
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("seed"));
+            var seedProp = serializedObject.FindProperty("seed");
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.PropertyField(seedProp);
+                if (GUILayout.Button("Randomise", GUILayout.Width(90)))
+                    seedProp.intValue = UnityEngine.Random.Range(0, int.MaxValue);
+            }
 
             var sourceProp = serializedObject.FindProperty("source");
             EditorGUILayout.PropertyField(sourceProp);
@@ -120,7 +135,7 @@ namespace HexTerra.Editor
 
             if (GUILayout.Button("Randomise Seed & Generate"))
             {
-                serializedObject.FindProperty("seed").intValue = UnityEngine.Random.Range(0, int.MaxValue);
+                seedProp.intValue = UnityEngine.Random.Range(0, int.MaxValue);
                 serializedObject.ApplyModifiedProperties();
                 hexMap.BeginGeneration();
             }
@@ -139,14 +154,16 @@ namespace HexTerra.Editor
                 _sourceAsset = assigned;
             }
 
+            // The working copy lives on the map; only clone a fresh one when there isn't one.
+            _working = hexMap.noisePresetOverride;
             if (!_working)
             {
                 _working = assigned ? Instantiate(assigned) : ScriptableObject.CreateInstance<NoisePreset>();
                 _working.name = assigned ? assigned.name : "Unsaved Noise";
                 _working.hideFlags = HideFlags.DontSave;
                 _workingDirty = false;
+                hexMap.noisePresetOverride = _working;
             }
-            hexMap.noisePresetOverride = _working;
 
             if (assigned)
             {
@@ -159,17 +176,28 @@ namespace HexTerra.Editor
                     if (GUILayout.Button("Show in Project"))
                         EditorGUIUtility.PingObject(assigned);
                 }
-                EditorGUILayout.HelpBox("Edits preview on the map but reach the preset only on Save. Deselecting the HexMap discards them.", MessageType.None);
+                EditorGUILayout.HelpBox("Edits preview on the map but reach the preset only on Overwrite. Reset reloads from the preset.", MessageType.None);
             }
             else
             {
-                EditorGUILayout.HelpBox("Unsaved noise. Save to keep it — deselecting the HexMap discards it.", MessageType.None);
+                EditorGUILayout.HelpBox("Unsaved noise. Save as New to keep it. A script or scene reload discards it.", MessageType.None);
             }
 
             DrawEmbedded(_working);
 
-            if (GUILayout.Button(assigned ? "Save" : "Save Noise Preset…"))
-                _saveQueued = true;
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                using (new EditorGUI.DisabledScope(!assigned || !_workingDirty))
+                    if (GUILayout.Button("Overwrite"))
+                        _pendingSave = PendingSave.Overwrite;
+
+                if (GUILayout.Button("Save as New…"))
+                    _pendingSave = PendingSave.AsNew;
+
+                using (new EditorGUI.DisabledScope(!assigned || !_workingDirty))
+                    if (GUILayout.Button("Reset"))
+                        EditorApplication.delayCall += () => ResetWorking(hexMap);
+            }
         }
 
         private void DrawEmbedded(NoisePreset preset)
@@ -186,27 +214,29 @@ namespace HexTerra.Editor
             }
         }
 
-        // Runs from the top of OnInspectorGUI, before any layout — the save dialogue and asset
-        // writes must not happen inside the IMGUI layout pass.
-        private void SaveWorking()
+        // OverwritePreset and SavePresetAsNew run from the top of OnInspectorGUI, before any
+        // layout. The save dialogue and asset writes must not happen inside the IMGUI layout pass.
+        private void OverwritePreset()
+        {
+            if (!_working || !_sourceAsset)
+                return;
+
+            // CopySerialized brings the whole serialised state across (including the
+            // [SerializeReference] noise tree). Restore the asset's own identity after.
+            var assetName = _sourceAsset.name;
+            Undo.RecordObject(_sourceAsset, "Overwrite Noise Preset");
+            EditorUtility.CopySerialized(_working, _sourceAsset);
+            _sourceAsset.name = assetName;
+            _sourceAsset.hideFlags = HideFlags.None;
+            EditorUtility.SetDirty(_sourceAsset);
+            AssetDatabase.SaveAssets();
+            DiscardWorking();
+        }
+
+        private void SavePresetAsNew()
         {
             if (target is not HexMap map || !map || !_working)
                 return;
-
-            if (_sourceAsset)
-            {
-                // CopySerialized brings the whole serialised state across (including the
-                // [SerializeReference] noise tree). Restore the asset's own identity after.
-                var assetName = _sourceAsset.name;
-                Undo.RecordObject(_sourceAsset, "Save Noise Preset");
-                EditorUtility.CopySerialized(_working, _sourceAsset);
-                _sourceAsset.name = assetName;
-                _sourceAsset.hideFlags = HideFlags.None;
-                EditorUtility.SetDirty(_sourceAsset);
-                AssetDatabase.SaveAssets();
-                DiscardWorking();
-                return;
-            }
 
             var path = EditorUtility.SaveFilePanelInProject(
                 "Save Noise Preset", "New NoisePreset", "asset",
@@ -214,6 +244,7 @@ namespace HexTerra.Editor
             if (string.IsNullOrEmpty(path))
                 return;
 
+            // _working is an unsaved in-memory instance, so it can become the asset directly.
             map.noisePresetOverride = null;
             _working.hideFlags = HideFlags.None;
             AssetDatabase.CreateAsset(_working, path);
@@ -227,6 +258,16 @@ namespace HexTerra.Editor
             var so = new SerializedObject(map);
             so.FindProperty("noisePreset").objectReferenceValue = saved;
             so.ApplyModifiedProperties();
+        }
+
+        // Drop in-memory edits and rebuild from the saved preset. DiscardWorking clears the
+        // override, so generation reads the asset; the working copy is remade on the next repaint.
+        private void ResetWorking(HexMap map)
+        {
+            DiscardWorking();
+
+            if (map && map.CanGenerate)
+                map.BeginGeneration();
         }
 
         private void DiscardWorking()
