@@ -30,4 +30,5 @@ MonoBehaviour:
         persistence: 0.25
     - rid: 8500000000000000001
       type: {class: PerlinNoise, ns: HexTerra, asm: HexTerra}
-      data: 
+      data:
+        scale: 1

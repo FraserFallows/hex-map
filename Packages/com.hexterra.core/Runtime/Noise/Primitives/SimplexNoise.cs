@@ -7,6 +7,9 @@ namespace HexTerra
     [Serializable]
     public class SimplexNoise : Noise2D
     {
+        // Feature size: above 1 spreads the pattern out, below 1 tightens it.
+        [Min(0.0001f)] public float scale = 1f;
+
         private const float F2 = 0.3660254f;   // (sqrt(3) - 1) / 2
         private const float G2 = 0.21132487f;  // (3 - sqrt(3)) / 6
 
@@ -20,6 +23,10 @@ namespace HexTerra
 
         public override float Sample(float x, float y)
         {
+            float s = Mathf.Max(scale, 0.0001f);
+            x /= s;
+            y /= s;
+
             float skew = (x + y) * F2;
             int i = Mathf.FloorToInt(x + skew);
             int j = Mathf.FloorToInt(y + skew);
