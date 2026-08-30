@@ -15,7 +15,10 @@ namespace HexTerra
 
         [SerializeReference] public Noise2D source = new PerlinNoise();
         [SerializeReference] public Noise2D warp = new PerlinNoise();
-        public float strength = 0.5f;
+
+        // Warp offset in feature-size units. 0 disables warping; past 1 the source is pushed by
+        // more than a whole feature and the terrain smears into noise.
+        [Range(0f, 1f)] public float strength = 0.5f;
 
         public override float Sample(float x, float y)
         {
