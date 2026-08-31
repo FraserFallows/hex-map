@@ -1,5 +1,3 @@
-# Hex Map
-
 ![A procedurally generated hex terrain](media/hero.png)
 
 A Unity project that procedurally generates configurable, height-mapped hex grids: a grid of
