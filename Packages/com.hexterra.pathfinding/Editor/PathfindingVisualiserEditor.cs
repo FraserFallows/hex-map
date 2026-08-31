@@ -35,6 +35,17 @@ namespace HexTerra.Pathfinding.Editor
 
             EditorGUILayout.Space();
 
+            // Reset the picked endpoints so the scene saves without a route baked in.
+            if (GUILayout.Button("Clear start and goal") &&
+                (vis.start != Vector2Int.zero || vis.goal != Vector2Int.zero))
+            {
+                Undo.RecordObject(vis, "Clear path endpoints");
+                vis.start = Vector2Int.zero;
+                vis.goal = Vector2Int.zero;
+                EditorUtility.SetDirty(vis);
+                SceneView.RepaintAll();
+            }
+
             if (graph == null || graph.NodeCount == 0)
             {
                 var map = FindAnyObjectByType<HexMap>();
