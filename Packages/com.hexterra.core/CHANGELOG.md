@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changes
+
+- `HexCell.neighbours` is a `HexCell[]` now, not a `GameObject[]`. Code reading it no longer needs `GetComponent<HexCell>()`.
+
 ## [0.2.0] - 2026-08-30
 
 A pass over the noise system: new shaping and layering nodes, a rebuilt inspector for the graph.

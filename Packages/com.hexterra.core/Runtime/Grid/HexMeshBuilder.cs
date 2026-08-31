@@ -56,13 +56,12 @@ namespace HexTerra
         {
             int orientation = 0;
 
-            foreach (var neighbourGo in cell.neighbours)
+            foreach (var neighbour in cell.neighbours)
             {
-                var neighbour = neighbourGo ? neighbourGo.GetComponent<HexCell>() : null;
                 float heightDiff = neighbour ? cell.WorldHeight - neighbour.WorldHeight : cell.WorldHeight;
 
-                if (heightDiff > 0 || !neighbourGo)
-                    AddWallInstances(cell, heightDiff, orientation, !neighbourGo);
+                if (heightDiff > 0 || !neighbour)
+                    AddWallInstances(cell, heightDiff, orientation, !neighbour);
 
                 orientation++;
             }

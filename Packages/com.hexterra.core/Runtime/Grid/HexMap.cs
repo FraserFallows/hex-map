@@ -42,7 +42,7 @@ namespace HexTerra
 
         private HexGrid _grid;
 
-        private NoisePreset ActiveNoisePreset => noisePresetOverride != null ? noisePresetOverride : noisePreset;
+        private NoisePreset ActiveNoisePreset => noisePresetOverride ? noisePresetOverride : noisePreset;
 
         // False when the chosen source is missing the asset it needs.
         public bool CanGenerate => source switch

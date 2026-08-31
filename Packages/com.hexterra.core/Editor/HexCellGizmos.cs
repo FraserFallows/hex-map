@@ -43,8 +43,10 @@ namespace HexTerra.Editor
             DrawAxis(cell, RMinus, originScreen, viewport, isQ: false);
 
             foreach (var i in SNeighbours)
-                if (cell.neighbours[i] && cell.neighbours[i].TryGetComponent(out HexCell s))
-                    Label(HandleUtility.WorldToGUIPoint(Anchor(s)), $"{s.q}, {s.r}", _labelStyle);
+            {
+                var s = cell.neighbours[i];
+                if (s) Label(HandleUtility.WorldToGUIPoint(Anchor(s)), $"{s.q}, {s.r}", _labelStyle);
+            }
 
             Handles.EndGUI();
         }
@@ -57,7 +59,8 @@ namespace HexTerra.Editor
 
             for (int i = 0; i < MaxAxisWalk; i++)
             {
-                if (!current.neighbours[dirIndex] || !current.neighbours[dirIndex].TryGetComponent(out HexCell next))
+                var next = current.neighbours[dirIndex];
+                if (!next)
                     return;
                 current = next;
 
@@ -85,8 +88,7 @@ namespace HexTerra.Editor
         private static Rect Viewport()
         {
             var camera = Camera.current;
-            if (camera == null)
-                return new Rect(-1000, -1000, 6000, 6000);
+            if (!camera) return new Rect(-1000, -1000, 6000, 6000);
 
             var scale = EditorGUIUtility.pixelsPerPoint;
             var rect = new Rect(0, 0, camera.pixelWidth / scale, camera.pixelHeight / scale);
@@ -106,7 +108,7 @@ namespace HexTerra.Editor
 
         private static void EnsureStyles()
         {
-            if (_backdrop == null)
+            if (!_backdrop)
             {
                 _backdrop = new Texture2D(1, 1) { hideFlags = HideFlags.HideAndDontSave };
                 _backdrop.SetPixel(0, 0, BackdropColour);
@@ -119,6 +121,7 @@ namespace HexTerra.Editor
                 padding = new RectOffset(5, 5, 2, 2),
                 normal = { textColor = Color.white, background = _backdrop }
             };
+
             _labelStyle ??= new GUIStyle
             {
                 alignment = TextAnchor.MiddleCenter, richText = true,

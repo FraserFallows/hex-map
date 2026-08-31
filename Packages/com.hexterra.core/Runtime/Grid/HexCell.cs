@@ -4,7 +4,7 @@ namespace HexTerra
 {
     public class HexCell : MonoBehaviour
     {
-        public GameObject[] neighbours = new GameObject[6];
+        public HexCell[] neighbours = new HexCell[6];
 
         public int q;
         public int r;

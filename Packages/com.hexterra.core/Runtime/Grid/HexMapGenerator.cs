@@ -95,7 +95,8 @@ namespace HexTerra
                 for (int i = 0; i < HexMath.Directions.Length; i++)
                 {
                     var dir = HexMath.Directions[i];
-                    cell.neighbours[i] = grid.GetHexAt(cell.q + dir.x, cell.r + dir.y);
+                    var neighbour = grid.GetHexAt(cell.q + dir.x, cell.r + dir.y);
+                    cell.neighbours[i] = neighbour ? neighbour.GetComponent<HexCell>() : null;
                 }
             }
         }

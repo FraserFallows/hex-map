@@ -37,7 +37,7 @@ namespace HexTerra.Editor
 
         private void OnDisable()
         {
-            if (_presetEditor != null)
+            if (_presetEditor)
                 DestroyImmediate(_presetEditor);
         }
 
