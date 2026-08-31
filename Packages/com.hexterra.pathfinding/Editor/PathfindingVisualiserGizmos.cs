@@ -19,6 +19,12 @@ namespace HexTerra.Pathfinding.Editor
         private static bool _bothOnMap;
         private static bool _found;
 
+        private static readonly List<int> ReachNodes = new();
+        private static PathGraph _reachGraph;
+        private static Vector2Int _reachStart;
+        private static int _reachBudget = -1;
+        private static bool[] _inReach = Array.Empty<bool>();
+
         private static readonly Color StartColour = new(0.30f, 0.80f, 0.35f);
         private static readonly Color GoalColour = new(0.25f, 0.65f, 0.95f);
         private static readonly Color BlockedColour = new(0.90f, 0.30f, 0.30f);
@@ -32,6 +38,12 @@ namespace HexTerra.Pathfinding.Editor
             new(0.90f, 0.32f, 0.32f),
             new(0.72f, 0.42f, 0.90f),
         };
+
+        private static readonly Color ReachBorderColour = new(0.25f, 0.90f, 0.85f);
+
+        // The two corner offsets per hex edge. Flat-top, circumradius 1 (HexMath spacing);
+        // edge k faces 90 - 60k degrees.
+        private static readonly Vector3[] EdgeCorners = BuildEdgeCorners();
 
         private static GUIStyle _style;
 
@@ -47,6 +59,12 @@ namespace HexTerra.Pathfinding.Editor
             int start = graph.IndexOf(vis.start);
             int goal = graph.IndexOf(vis.goal);
             bool normal = _found || !_bothOnMap;
+
+            if (vis.drawReachable && start >= 0)
+            {
+                SolveReachable(pathfinder, graph, vis.start, pathfinder.MovePoints);
+                DrawReachableBorder(graph);
+            }
 
             if (start >= 0) Marker(graph.WorldPositionOf(start), normal ? StartColour : BlockedColour);
             if (goal >= 0) Marker(graph.WorldPositionOf(goal), normal ? GoalColour : BlockedColour);
@@ -101,10 +119,69 @@ namespace HexTerra.Pathfinding.Editor
                 _points[i] = graph.WorldPositionOf(Path[i]) + Vector3.up * 0.06f;
         }
 
+        // Re-solves the reachable set on a graph, start, or budget change; band edits need a nudge.
+        private static void SolveReachable(Pathfinder pathfinder, PathGraph graph, Vector2Int start, int budget)
+        {
+            if (ReferenceEquals(graph, _reachGraph) && start == _reachStart && budget == _reachBudget)
+                return;
+
+            _reachGraph = graph;
+            _reachStart = start;
+            _reachBudget = budget;
+            pathfinder.TryFindReachable(start, budget, ReachNodes);
+        }
+
+        // Draws an edge wherever a reachable hex borders one that is off-map or out of range, so
+        // the outline wraps the region and any interior pockets it cannot enter.
+        private static void DrawReachableBorder(PathGraph graph)
+        {
+            int count = graph.NodeCount;
+            if (_inReach.Length < count)
+                _inReach = new bool[count];
+            else
+                Array.Clear(_inReach, 0, count);
+            foreach (int node in ReachNodes)
+                _inReach[node] = true;
+
+            Handles.color = ReachBorderColour;
+            foreach (int node in ReachNodes)
+            {
+                var centre = graph.WorldPositionOf(node) + Vector3.up * 0.03f;
+                ReadOnlySpan<int> neighbours = graph.NeighboursOf(node);
+                for (int k = 0; k < 6; k++)
+                {
+                    if (neighbours[k] >= 0 && _inReach[neighbours[k]])
+                        continue;
+
+                    var corner0 = centre + EdgeCorners[k * 2];
+                    var corner1 = centre + EdgeCorners[k * 2 + 1];
+                    Handles.DrawAAPolyLine(3f, corner0, corner1);
+
+                    // Each corner is shared with the adjacent side (k - 1 for corner0, k + 1 for corner1).
+                    StepRiser(graph, centre.y, corner0, neighbours[(k + 5) % 6]);
+                    StepRiser(graph, centre.y, corner1, neighbours[(k + 1) % 6]);
+                }
+            }
+        }
+
+        // Draws a vertical from a border corner down to the lower reachable hex sharing it, so a
+        // height step reads as a wall. Drawn once, from the higher hex.
+        private static void StepRiser(PathGraph graph, float topY, Vector3 corner, int adjacent)
+        {
+            if (adjacent < 0 || !_inReach[adjacent])
+                return;
+
+            float adjY = graph.WorldPositionOf(adjacent).y + 0.03f;
+            if (adjY >= topY)
+                return;
+
+            Handles.DrawAAPolyLine(3f, new Vector3(corner.x, adjY, corner.z), corner);
+        }
+
         private static int[] _turns = Array.Empty<int>();
 
-        // A turn starts with a fresh movePoints budget; the leftover is discarded when the next
-        // move will not fit, so a wasted point can push a node into a later turn.
+        // Colours the route by the turn each hex falls in. Edge costs pack into successive movePoints
+        // budgets with each turn's leftover discarded, so a wasted point can delay a hex by a turn.
         private static void DrawTurnBands(int movePoints)
         {
             int n = _points.Length;
@@ -141,6 +218,20 @@ namespace HexTerra.Pathfinding.Editor
 
                 i = j;
             }
+        }
+
+        private static Vector3[] BuildEdgeCorners()
+        {
+            var corners = new Vector3[12];
+            for (int k = 0; k < 6; k++)
+            {
+                float facing = (90f - 60f * k) * Mathf.Deg2Rad;
+                corners[k * 2] = Corner(facing + Mathf.PI / 6f);
+                corners[k * 2 + 1] = Corner(facing - Mathf.PI / 6f);
+            }
+            return corners;
+
+            static Vector3 Corner(float a) => new(Mathf.Cos(a), 0f, Mathf.Sin(a));
         }
 
         private static void Marker(Vector3 centre, Color colour)

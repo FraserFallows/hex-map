@@ -9,6 +9,7 @@ namespace HexTerra.Pathfinding.Editor
     {
         private static readonly List<int> Path = new();
         private static readonly List<int> Costs = new();
+        private static readonly List<int> Reach = new();
 
         // Brings the transient graph back on its own after a domain reload.
         private static Pathfinder EnsureGraph(PathfindingVisualiser vis)
@@ -57,6 +58,12 @@ namespace HexTerra.Pathfinding.Editor
                     }
                 }
                 return;
+            }
+
+            if (vis.drawReachable && graph.IndexOf(vis.start) >= 0)
+            {
+                pathfinder.TryFindReachable(vis.start, Reach);
+                EditorGUILayout.LabelField($"Reachable: {Reach.Count} hexes within {pathfinder.MovePoints} points");
             }
 
             if (graph.IndexOf(vis.start) < 0 || graph.IndexOf(vis.goal) < 0)

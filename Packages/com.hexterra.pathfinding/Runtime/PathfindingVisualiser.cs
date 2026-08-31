@@ -4,8 +4,8 @@ using UnityEngine;
 namespace HexTerra.Pathfinding
 {
     /// <summary>
-    /// Scene-view preview of a Pathfinder route. Select it, then click a hex to set the start and
-    /// shift-click for the goal; either endpoint can also be dragged. Editor only.
+    /// Scene-view preview for a Pathfinder: click a hex to set the start, shift-click for the goal,
+    /// or drag either. Editor only.
     /// </summary>
     [RequireComponent(typeof(Pathfinder))]
     public sealed class PathfindingVisualiser : MonoBehaviour
@@ -13,6 +13,7 @@ namespace HexTerra.Pathfinding
         public Vector2Int start;
         public Vector2Int goal;
         public bool drawStepCosts = true;
+        public bool drawReachable = true;
     }
 }
 #endif
