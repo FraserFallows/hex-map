@@ -44469,6 +44469,70 @@ Transform:
   m_Children: []
   m_Father: {fileID: 303962656}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &317985983
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 317985986}
+  - component: {fileID: 317985985}
+  - component: {fileID: 317985984}
+  m_Layer: 0
+  m_Name: Pathfinder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &317985984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 317985983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19f4bf4d952e3714198e355dcc8c6927, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HexTerra.Pathfinding::HexTerra.Pathfinding.PathfindingVisualiser
+  start: {x: -15, y: 2}
+  goal: {x: 23, y: -8}
+  drawStepCosts: 1
+--- !u!114 &317985985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 317985983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0b83c3073465034f943be9531f6c9a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HexTerra.Pathfinding::HexTerra.Pathfinding.Pathfinder
+  baseCost: 2
+  ascentCost: 00000000000000000100000003000000050000000700000009000000
+  descentCost: 00000000000000000100000001000000020000000300000005000000
+  movePoints: 16
+--- !u!4 &317985986
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 317985983}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &318149000
 GameObject:
   m_ObjectHideFlags: 0
@@ -258369,5 +258433,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 1391247347}
   - {fileID: 1235485064}
+  - {fileID: 317985986}
   - {fileID: 303962656}
   - {fileID: 1769317181}

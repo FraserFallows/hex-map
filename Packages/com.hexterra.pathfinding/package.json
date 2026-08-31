@@ -1,0 +1,17 @@
+{
+  "name": "com.hexterra.pathfinding",
+  "version": "0.1.0",
+  "displayName": "HexTerra Pathfinding",
+  "description": "A* pathfinding for HexTerra hex maps: a per-generation PathGraph snapshot, an injected traversal model for climb limits and asymmetric slope cost, and an indexed-heap A* solver.",
+  "unity": "2022.3",
+  "license": "MIT",
+  "dependencies": {
+    "com.hexterra.core": "0.3.0"
+  },
+  "keywords": [
+    "hex",
+    "hexagon",
+    "pathfinding",
+    "astar"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+    "name": "HexTerra.Pathfinding",
+    "rootNamespace": "HexTerra.Pathfinding",
+    "references": [
+        "HexTerra"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
