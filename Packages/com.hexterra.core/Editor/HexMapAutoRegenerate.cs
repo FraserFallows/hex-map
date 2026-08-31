@@ -50,14 +50,36 @@ namespace HexTerra.Editor
 
             for (int i = 0; i < stream.length; i++)
             {
-                var kind = stream.GetEventType(i);
-                if (kind == ObjectChangeKind.ChangeGameObjectOrComponentProperties ||
-                    kind == ObjectChangeKind.ChangeAssetObjectProperties)
-                {
-                    _dirty = true;
-                    _dirtiedAt = EditorApplication.timeSinceStartup;
-                    return;
-                }
+                if (!TouchesMapConfig(ref stream, i))
+                    continue;
+
+                _dirty = true;
+                _dirtiedAt = EditorApplication.timeSinceStartup;
+                return;
+            }
+        }
+
+        // Only a HexMap's own properties or an edited NoisePreset should rebuild. Reacting to any
+        // other component's change stalls the editor on a full regenerate for every scene edit.
+        private static bool TouchesMapConfig(ref ObjectChangeEventStream stream, int index)
+        {
+            switch (stream.GetEventType(index))
+            {
+                case ObjectChangeKind.ChangeGameObjectOrComponentProperties:
+                    stream.GetChangeGameObjectOrComponentPropertiesEvent(index, out var component);
+                    return EditorUtility.InstanceIDToObject(component.instanceId) switch
+                    {
+                        HexMap => true,
+                        GameObject go => go.TryGetComponent<HexMap>(out _),
+                        _ => false
+                    };
+
+                case ObjectChangeKind.ChangeAssetObjectProperties:
+                    stream.GetChangeAssetObjectPropertiesEvent(index, out var asset);
+                    return EditorUtility.InstanceIDToObject(asset.instanceId) is NoisePreset;
+
+                default:
+                    return false;
             }
         }
 

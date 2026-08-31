@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace HexTerra
@@ -10,6 +12,11 @@ namespace HexTerra
     public class HexGrid
     {
         public GameObject[,] HexArray { get; }
+
+        /// <summary>
+        /// Every cell in the grid, in the array's row-major order, excluding slots outside the shape.
+        /// </summary>
+        public IReadOnlyList<HexCell> Cells { get; }
 
         /// <summary>
         /// Axial bounding box of the grid. The array index for an axial coord is
@@ -26,6 +33,7 @@ namespace HexTerra
         {
             HexArray = hexArray;
             AxialBounds = axialBounds;
+            Cells = CollectCells(hexArray);
             MidpointHex = ComputeMidpointHex();
         }
 
@@ -53,6 +61,18 @@ namespace HexTerra
                 AxialBounds.yMin + (AxialBounds.height - 1) / 2f);
             var axial = HexMath.Round(centre);
             return GetHexAt(axial.x, axial.y);
+        }
+
+        private static HexCell[] CollectCells(GameObject[,] hexArray)
+        {
+            if (hexArray == null) return Array.Empty<HexCell>();
+
+            var cells = new List<HexCell>(hexArray.Length);
+            foreach (var hex in hexArray)
+                if (hex && hex.TryGetComponent(out HexCell cell))
+                    cells.Add(cell);
+
+            return cells.ToArray();
         }
     }
 }

@@ -20,6 +20,10 @@ A texture heightmap needs Read/Write enabled in its import settings; for correct
 
 The package never reaches into your scene by name and never loads anything via `Resources.Load`: everything it needs is handed to it as a serialized field or constructor parameter.
 
+## Requires
+
+Unity 2022.3 or newer, and the Universal Render Pipeline. The bundled meshes, materials, and shaders under `Content/` are authored for URP; on Built-in RP or HDRP they render as broken (magenta) materials. Supply your own materials, or switch the project to URP.
+
 ## Status
 
 Early. Pulled out of a larger project as its own package. API isn't stable yet.

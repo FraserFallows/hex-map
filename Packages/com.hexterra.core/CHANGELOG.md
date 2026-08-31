@@ -2,9 +2,19 @@
 
 ## [Unreleased]
 
+### New
+
+- Added `HexMap.Cells` and `HexGrid.Cells`. The map's cells as an `IReadOnlyList<HexCell>`.
+
 ### Changes
 
 - `HexCell.neighbours` is a `HexCell[]` now, not a `GameObject[]`. Code reading it no longer needs `GetComponent<HexCell>()`.
+- Renamed the Package Manager entry to `HexTerra Core`. The `com.hexterra.core` id is unchanged.
+- Lowered the minimum Unity version to 2022.3 and declared the `com.unity.test-framework` dependency.
+
+### Fixes
+
+- Auto-regenerate triggers only on `HexMap` and `NoisePreset` edits. It was rebuilding on any component change in the scene.
 
 ## [0.2.0] - 2026-08-30
 

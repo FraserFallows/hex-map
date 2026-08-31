@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -51,6 +52,12 @@ namespace HexTerra
             HeightmapSourceKind.Texture => heightmapImage != null,
             _ => true
         };
+
+        /// <summary>
+        /// Every cell in the current map, or empty if it has never been generated. Falls back to
+        /// the live child cells when the transient grid was lost to a domain reload.
+        /// </summary>
+        public IReadOnlyList<HexCell> Cells => _grid?.Cells ?? GetComponentsInChildren<HexCell>();
 
         private void Start() => BeginGeneration();
 
