@@ -4,9 +4,9 @@ using UnityEngine;
 namespace HexTerra.Pathfinding
 {
     /// <summary>
-    /// The pathfinding entry point: holds the traversal rules, rebuilds the PathGraph and solver
-    /// from a map on each generation, and answers coordinate-to-coordinate path queries. Wire
-    /// RebuildGraph to HexMap.mapGenerated in the inspector.
+    /// The pathfinding entry point: holds the traversal rules, rebuilds the PathGraph and solvers
+    /// from a map on each generation, and answers path and reachability queries between axial
+    /// coords. Wire RebuildGraph to HexMap.mapGenerated in the inspector.
     /// </summary>
     public sealed class Pathfinder : MonoBehaviour
     {
@@ -28,15 +28,17 @@ namespace HexTerra.Pathfinding
         public int MovePoints => movePoints;
 
         private HexAStar _solver;
+        private HexDijkstra _reachability;
 
         /// <summary>
-        /// Rebuilds the graph and solver for a freshly generated map. Wire this to
+        /// Rebuilds the graph and solvers for a freshly generated map. Wire this to
         /// HexMap.mapGenerated.
         /// </summary>
         public void RebuildGraph(HexMap map)
         {
             Graph = PathGraphBuilder.Build(map.Cells);
             _solver = new HexAStar(Graph);
+            _reachability = new HexDijkstra(Graph);
         }
 
         /// <summary>
@@ -58,10 +60,30 @@ namespace HexTerra.Pathfinding
             return _solver.TryFindPath(BuildRules(), start, goal, pathOut, costOut);
         }
 
+        /// <summary>
+        /// Fills nodesOut with the node indices reachable from an axial coord for a cost of at most
+        /// budget and returns true, or clears nodesOut and returns false when there is no graph yet
+        /// or the coord is off the map. An optional costsOut receives the cost to reach each node.
+        /// </summary>
+        public bool TryFindReachable(Vector2Int from, int budget, List<int> nodesOut, List<int> costsOut = null)
+        {
+            nodesOut.Clear();
+            costsOut?.Clear();
+            if (Graph == null) return false;
+
+            int start = Graph.IndexOf(from);
+            if (start < 0) return false;
+
+            return _reachability.TryFindReachable(BuildRules(), start, budget, nodesOut, costsOut);
+        }
+
+        public bool TryFindReachable(Vector2Int from, List<int> nodesOut, List<int> costsOut = null) =>
+            TryFindReachable(from, movePoints, nodesOut, costsOut);
+
         private TraversalModel BuildRules() => new(baseCost, ascentCost, descentCost);
 
 #if UNITY_EDITOR
-        // A negative band would let a move cost less than baseCost and break the A* heuristic.
+        // A negative band makes a move cheaper than baseCost, breaking the A* heuristic and Dijkstra.
         private void OnValidate()
         {
             ClampToZero(ascentCost);
