@@ -10,19 +10,20 @@ namespace HexTerra
     [Serializable]
     public class SmoothNoise : Noise2D
     {
+        [Tooltip("Noise blurred by averaging nearby samples.")]
         [SerializeReference] public Noise2D source = new FractalNoise();
 
-        // Blur reach in sample units. 0 passes the source through unchanged.
+        [Tooltip("Blur reach in sample units. 0 passes the source through unchanged.")]
         [Min(0f)] public float radius = 1f;
 
-        // Samples each way from centre per axis: (2 * taps + 1) squared per output. More is smoother and slower.
+        [Tooltip("Samples taken each way from centre per axis. More is smoother and slower.")]
         [Range(1, 4)] public int taps = 2;
 
         public override float Sample(float x, float y)
         {
             if (source == null)
                 return 0f;
-            if (radius <= 0f || taps < 1)
+            if (radius <= 0f)
                 return source.Sample(x, y);
 
             int side = 2 * taps + 1;

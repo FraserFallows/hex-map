@@ -7,11 +7,11 @@ namespace HexTerra
     [Serializable]
     public class WorleyNoise : Noise2D
     {
-        // Feature size: above 1 spreads the pattern out, below 1 tightens it.
+        [Tooltip("Feature size. Above 1 spreads the pattern out, below 1 tightens it.")]
         [Min(0.0001f)] public float scale = 1f;
 
-        // 0 pins feature points to cell centres (a regular grid), 1 scatters them fully. Past 1 a
-        // point can leave its cell and the 3x3 search below would miss the true nearest.
+        // Capped at 1: past it a point can leave its cell and the 3x3 search below would miss the true nearest.
+        [Tooltip("How far feature points stray from their cell centre. 0 is a regular grid, 1 fully scattered.")]
         [Range(0f, 1f)] public float jitter = 1f;
 
         public override float Sample(float x, float y)

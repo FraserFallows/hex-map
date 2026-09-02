@@ -10,12 +10,13 @@ namespace HexTerra
     [Serializable]
     public class TerraceNoise : Noise2D
     {
+        [Tooltip("Noise snapped into flat bands.")]
         [SerializeReference] public Noise2D source = new FractalNoise();
 
-        // Flat heights, evenly spaced over [0, 1] inclusive. 2 is just a floor and a ceiling.
+        [Tooltip("Number of flat heights, evenly spaced over 0 to 1. 2 is just a floor and a ceiling.")]
         [Min(2)] public int levels = 5;
 
-        // 0 rounds the ramp between levels; 1 makes it a vertical cliff.
+        [Tooltip("Sharpness of the step between bands. 0 is a rounded ramp, 1 a vertical cliff.")]
         [Range(0f, 1f)] public float flatness = 0.6f;
 
         public override float Sample(float x, float y)

@@ -13,11 +13,12 @@ namespace HexTerra
         // Reused warp field sampled far from the origin so the Y displacement is uncorrelated with X.
         private static readonly Vector2 WarpDecorrelation = new(137.2f, 91.7f);
 
+        [Tooltip("Noise sampled at the pushed-around position.")]
         [SerializeReference] public Noise2D source = new PerlinNoise();
+        [Tooltip("Noise that displaces where Source is sampled.")]
         [SerializeReference] public Noise2D warp = new PerlinNoise();
 
-        // Warp offset in feature-size units. 0 disables warping; past 1 the source is pushed by
-        // more than a whole feature and the terrain smears into noise.
+        [Tooltip("Warp distance in feature-size units. 0 disables warping; past 1 the source smears into noise.")]
         [Range(0f, 1f)] public float strength = 0.5f;
 
         public override float Sample(float x, float y)

@@ -9,11 +9,14 @@ namespace HexTerra
     [Serializable]
     public struct NoiseLayer
     {
+        [Tooltip("The layer's noise field.")]
         [SerializeReference] public Noise2D source;
+        [Tooltip("How this layer combines with the result of the layers before it.")]
         public LayerBlend blend;
+        [Tooltip("How strongly the layer applies. 0 skips it entirely.")]
         [Range(0f, 1f)] public float weight;
 
-        // Optional. Null applies the layer everywhere; otherwise its [0, 1] value scales the weight.
+        [Tooltip("Optional field whose 0 to 1 value scales the weight per point. None applies the layer everywhere.")]
         [SerializeReference] public Noise2D mask;
     }
 
@@ -27,6 +30,7 @@ namespace HexTerra
         // Offsets layer i so two identically configured layers don't sample the same pattern.
         private static readonly Vector2 LayerDecorrelation = new(137.2f, 91.7f);
 
+        [Tooltip("Layers folded left to right onto the running result. Order matters.")]
         public List<NoiseLayer> layers = new();
 
         public override float Sample(float x, float y)

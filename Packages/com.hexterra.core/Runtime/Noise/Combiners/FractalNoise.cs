@@ -12,21 +12,22 @@ namespace HexTerra
     [Serializable]
     public class FractalNoise : Noise2D
     {
+        [Tooltip("Noise stacked octave on octave.")]
         [SerializeReference] public Noise2D source = new PerlinNoise();
 
+        [Tooltip("How each octave is shaped before summing: Fbm as-is, Ridged inverting peaks into sharp ridges, Billow folding it into rounded lumps.")]
         public FractalMode mode = FractalMode.Fbm;
 
-        // Fewer than 1 octave leaves the field empty, and past ~8 the extra octaves are sub-hex detail.
+        [Tooltip("How many octaves to stack. Past about 8 the added detail is finer than a hex.")]
         [Range(1, 8)] public int octaves = 5;
 
-        // Frequency multiplier per octave. Below 1 the octaves would coarsen instead of refining.
+        [Tooltip("Frequency multiplier per octave: how much finer each one is than the last.")]
         [Range(1f, 4f)] public float lacunarity = 2f;
 
-        // Amplitude falloff per octave. Above 1 the fine octaves would swamp the base shape.
+        [Tooltip("Amplitude falloff per octave: how much less each one adds than the last.")]
         [Range(0f, 1f)] public float persistence = 0.5f;
 
-        // Turns each octave this many degrees past the last, so their axis-aligned artefacts cancel
-        // instead of stacking into streaks. 0 keeps every octave aligned.
+        [Tooltip("Rotates each octave this many degrees past the last so axis-aligned artefacts cancel instead of streaking. 0 keeps them aligned.")]
         [Range(0f, 90f)] public float octaveRotation = 30f;
 
         public override float Sample(float x, float y)

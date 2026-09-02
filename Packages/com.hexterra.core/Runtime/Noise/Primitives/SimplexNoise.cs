@@ -7,7 +7,7 @@ namespace HexTerra
     [Serializable]
     public class SimplexNoise : Noise2D
     {
-        // Feature size: above 1 spreads the pattern out, below 1 tightens it.
+        [Tooltip("Feature size. Above 1 spreads the pattern out, below 1 tightens it.")]
         [Min(0.0001f)] public float scale = 1f;
 
         private const float F2 = 0.3660254f;   // (sqrt(3) - 1) / 2

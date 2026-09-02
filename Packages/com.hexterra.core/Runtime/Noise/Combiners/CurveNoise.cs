@@ -9,7 +9,9 @@ namespace HexTerra
     [Serializable]
     public class CurveNoise : Noise2D
     {
+        [Tooltip("Noise remapped through the curve.")]
         [SerializeReference] public Noise2D source = new PerlinNoise();
+        [Tooltip("Maps the source value (X) to the output (Y). Both axes run 0 to 1.")]
         public AnimationCurve curve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
         public override float Sample(float x, float y)
