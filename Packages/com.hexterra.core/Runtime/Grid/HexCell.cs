@@ -12,6 +12,9 @@ namespace HexTerra
         // Height in discrete steps. WorldHeight converts it to metres.
         public int stepHeight;
 
+        // This cell's terrain kind, set by the generator's classifier step.
+        public SurfaceKind surfaceKind;
+
         public float WorldHeight => stepHeight * StepMetres;
 
         // World metres per step.

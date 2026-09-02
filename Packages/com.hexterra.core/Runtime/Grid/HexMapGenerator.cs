@@ -4,19 +4,23 @@ namespace HexTerra
 {
     /// <summary>
     /// Builds the logical grid and returns it as a HexGrid: a HexCell GameObject per shape cell,
-    /// with the heightmap sampled onto them, each raised to its step height and its neighbours wired.
+    /// with the heightmap sampled onto them, each raised to its step height, its neighbours wired
+    /// and its surface classified.
     /// </summary>
     public class HexMapGenerator
     {
         private readonly IHeightmapSource _heightmapSource;
         private readonly IMapShape _shape;
         private readonly Transform _parent;
+        private readonly SurfaceClassifier _classifier;
 
-        public HexMapGenerator(IHeightmapSource heightmapSource, IMapShape shape, Transform parent)
+        // A null classifier leaves every cell Grass.
+        public HexMapGenerator(IHeightmapSource heightmapSource, IMapShape shape, Transform parent, SurfaceClassifier classifier = null)
         {
             _heightmapSource = heightmapSource;
             _shape = shape;
             _parent = parent;
+            _classifier = classifier;
         }
 
         public HexGrid Generate()
@@ -47,6 +51,7 @@ namespace HexTerra
             ApplyHeightmap(grid);
             RaiseToStepHeight(grid);
             WireNeighbours(grid);
+            _classifier?.Apply(grid);
 
             return grid;
         }
