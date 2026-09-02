@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.1] - 2026-09-02
+
+### Fixes
+
+- `HexMap.CanGenerate` now also checks that the hex prefabs and materials are assigned. It only checked the height source, so a map with a `Heightmap` but no prefabs would start generating and throw an `UnassignedReferenceException` from `HexMeshBuilder` (repeatedly, with Auto-regenerate on).
+
 ## [0.3.0] - 2026-09-02
 
 The surface layer: per-cell Grass / Dirt / Rock classification baked into the mesh, a palette-driven `HexSurface` shader, and reusable `Heightmap` and `Surfacemap` recipe assets edited through a reworked `HexMap` inspector.
