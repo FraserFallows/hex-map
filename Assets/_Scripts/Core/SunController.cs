@@ -18,6 +18,7 @@ namespace _Scripts.Core
 
         public Vector2 RandomTimeOfYear()
         {
+            // Day: 9 angles 16 degrees apart over 128 degrees. Season: a 20, 40 or 60 degree tilt.
             float day = 16 * Random.Range(-4, 5);
             float season = 20 * Random.Range(1, 4);
             return new Vector2(day, season);
