@@ -1,0 +1,110 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4d1f6b28e0a37519b2c5d4e3f0a1b9c, type: 3}
+  m_Name: RockyHills_Grass01
+  m_EditorClassIdentifier: 
+  slopeWeight: 0.177
+  altitudeWeight: 0.482
+  convexityWeight: 0.219
+  noiseWeight: 0.388
+  slopeReference: 4
+  altitudeReference: 6
+  convexityReference: 2
+  rockThreshold: 0.95
+  dirtThreshold: 0.853
+  cleanupPasses: 1
+  noise:
+    rid: 3263831036323692933
+  noiseScale: 10
+  tint:
+    perCell: 1
+    noise:
+      rid: 3263831036323692883
+    noiseScale: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3263831036323692883
+      type: {class: LayeredNoise, ns: HexTerra, asm: HexTerra}
+      data:
+        layers:
+        - source:
+            rid: 3263831036323692902
+          blend: 0
+          weight: 1
+          mask:
+            rid: 3263831036323692896
+        - source:
+            rid: 3263831036323692925
+          blend: 2
+          weight: 1
+          mask:
+            rid: -2
+    - rid: 3263831036323692896
+      type: {class: TerraceNoise, ns: HexTerra, asm: HexTerra}
+      data:
+        source:
+          rid: 3263831036323692900
+        levels: 4
+        flatness: 0.53
+    - rid: 3263831036323692900
+      type: {class: FractalNoise, ns: HexTerra, asm: HexTerra}
+      data:
+        source:
+          rid: 3263831036323692901
+        mode: 0
+        octaves: 5
+        lacunarity: 2
+        persistence: 0.8
+        octaveRotation: 39.5
+    - rid: 3263831036323692901
+      type: {class: PerlinNoise, ns: HexTerra, asm: HexTerra}
+      data:
+        scale: 50
+    - rid: 3263831036323692902
+      type: {class: RemapNoise, ns: HexTerra, asm: HexTerra}
+      data:
+        source:
+          rid: 7700000000000000001
+        inputMin: 0.18
+        inputMax: 0.33
+    - rid: 3263831036323692925
+      type: {class: RemapNoise, ns: HexTerra, asm: HexTerra}
+      data:
+        source:
+          rid: 3263831036323692928
+        inputMin: -1
+        inputMax: 1
+    - rid: 3263831036323692928
+      type: {class: PerlinNoise, ns: HexTerra, asm: HexTerra}
+      data:
+        scale: 1
+    - rid: 3263831036323692933
+      type: {class: SimplexNoise, ns: HexTerra, asm: HexTerra}
+      data:
+        scale: 1
+    - rid: 7700000000000000001
+      type: {class: FractalNoise, ns: HexTerra, asm: HexTerra}
+      data:
+        source:
+          rid: 7700000000000000002
+        mode: 0
+        octaves: 4
+        lacunarity: 1.63
+        persistence: 0.744
+        octaveRotation: 15.1
+    - rid: 7700000000000000002
+      type: {class: PerlinNoise, ns: HexTerra, asm: HexTerra}
+      data:
+        scale: 50
