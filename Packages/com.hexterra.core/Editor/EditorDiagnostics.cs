@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using UnityEditor;
@@ -8,6 +7,7 @@ namespace HexTerra.Editor
 {
     public static class EditorDiagnostics
     {
+        // Not wired up; pass it to StopWatchPro to clear the Console before a timed run.
         public static void ClearConsole()
         {
             var method = Assembly.GetAssembly(typeof(SceneView)).GetType("UnityEditor.LogEntries").GetMethod("Clear");
@@ -17,7 +17,7 @@ namespace HexTerra.Editor
         /// <summary>
         /// Runs the actions in order and logs the total elapsed time under processName.
         /// </summary>
-        public static void StopWatchPro(string processName, List<Action> actions)
+        public static void StopWatchPro(string processName, params Action[] actions)
         {
             var stopwatch = Stopwatch.StartNew();
 
