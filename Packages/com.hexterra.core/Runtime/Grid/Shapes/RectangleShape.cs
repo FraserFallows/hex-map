@@ -5,7 +5,7 @@ namespace HexTerra
 {
     /// <summary>
     /// Rectangular footprint: every row is <c>width</c> hexes, with a jagged left/right edge
-    /// from the per-row axial shift. <see cref="ParallelogramShape"/> is the un-jagged rhombus.
+    /// from the per-row axial shift. <see cref="ParallelogramShape"/> is the un-jagged variant.
     /// </summary>
     public class RectangleShape : IMapShape
     {
@@ -31,6 +31,8 @@ namespace HexTerra
         {
             for (int r = 0; r < _height; r++)
             {
+                // Every second row up sits half a hex right in axial space; subtract that back
+                // so the rows stack into straight columns. qMin in AxialBounds is the same shift.
                 int shift = r >> 1;
                 for (int q = 0; q < _width; q++)
                     yield return new Vector2Int(q - shift, r);

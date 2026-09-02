@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace HexTerra
 {
+    /// <summary>
+    /// Hexagonal footprint, sized by a single radius (hexes from the centre out to an edge)
+    /// rather than the width and height the other shapes take.
+    /// </summary>
     public class HexagonShape : IMapShape
     {
         private readonly int _radius;

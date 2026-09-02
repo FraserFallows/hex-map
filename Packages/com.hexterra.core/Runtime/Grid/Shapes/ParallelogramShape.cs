@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace HexTerra
 {
+    /// <summary>
+    /// Parallelogram footprint: a <c>width</c> by <c>height</c> block in axial space with no
+    /// per-row shift, so the hex basis shears it into a parallelogram with straight edges.
+    /// <see cref="RectangleShape"/> is the jagged-edged variant.
+    /// </summary>
     public class ParallelogramShape : IMapShape
     {
         private readonly int _width;
