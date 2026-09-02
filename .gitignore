@@ -69,6 +69,7 @@ tmpclaude-*
 docs/
 scripts/
 local/
+local.meta
 
 # Editable art sources; exports in media/ are tracked
 /media/source/

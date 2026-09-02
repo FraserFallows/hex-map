@@ -1,6 +1,6 @@
 {
   "name": "com.hexterra.core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "displayName": "HexTerra Core",
   "description": "Procedural hexagonal grid and terrain generation for Unity: coordinate/neighbour math, mesh and wall generation, and pluggable heightmap sources.",
   "unity": "2022.3",
