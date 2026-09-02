@@ -66,7 +66,12 @@ sysinfo.txt
 # Misc
 nul
 tmpclaude-*
-docs
+docs/
+scripts/
+local/
+
+# Editable art sources; exports in media/ are tracked
+/media/source/
 
 # Third-party packages
 Packages/com.mibdev.fullscreen-editor/
