@@ -71,13 +71,15 @@ namespace HexTerra
         private Heightmap ActiveHeightmap => heightmapOverride ? heightmapOverride : heightmap;
         private Surfacemap ActiveSurfacemap => surfacemapOverride ? surfacemapOverride : surfacemap;
 
-        // False when the chosen source is missing the asset it needs.
-        public bool CanGenerate => source switch
-        {
-            HeightmapSourceKind.Noise => ActiveHeightmap != null,
-            HeightmapSourceKind.Texture => heightmapImage != null,
-            _ => true
-        };
+        // False until the render prefabs, the materials, and the chosen height source are all
+        // assigned. Generation instantiates the prefabs, so a null one throws.
+        public bool CanGenerate =>
+            hexTopPrefab && hexWallPrefab && hexSurfaceMaterial && hexEdgeMaterial && source switch
+            {
+                HeightmapSourceKind.Noise => ActiveHeightmap != null,
+                HeightmapSourceKind.Texture => heightmapImage != null,
+                _ => true
+            };
 
         /// <summary>
         /// Every cell in the current map, or empty if it has never been generated. Falls back to

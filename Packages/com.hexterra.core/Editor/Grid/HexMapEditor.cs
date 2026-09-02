@@ -204,10 +204,13 @@ namespace HexTerra.Editor
 
             if (!map.CanGenerate)
             {
-                EditorGUILayout.HelpBox(
-                    kind == HeightmapSourceKind.Noise
-                        ? "Assign a Heightmap to generate."
-                        : "Assign a heightmap image to generate.",
+                var source = kind switch
+                {
+                    HeightmapSourceKind.Noise => "a Heightmap, ",
+                    HeightmapSourceKind.Texture => "a heightmap image, ",
+                    _ => ""
+                };
+                EditorGUILayout.HelpBox($"Assign {source}the hex prefabs and materials to generate.",
                     MessageType.Info);
                 return;
             }
