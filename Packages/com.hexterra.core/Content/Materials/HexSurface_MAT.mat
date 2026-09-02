@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: HexSurface_MAT
+  m_Shader: {fileID: -6465566751694194690, guid: 316799ef45d2b5347a1b158383d4d821, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 2
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses:
+  - MOTIONVECTORS
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _TintLUT:
+        m_Texture: {fileID: 2800000, guid: ecfa875efa56e414c81603b1706a5469, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Tint_LUT:
+        m_Texture: {fileID: 2800000, guid: ecfa875efa56e414c81603b1706a5469, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BorderColour2: 0
+    - _BorderFeather: 0.01
+    - _BorderFeather2: 1
+    - _BorderThickness: 0.02
+    - _BorderThickness2: 0
+    - _CellApothem: 0.8660254
+    - _CellWorldWidth: 2
+    - _DirtWallSteps: 3
+    - _EdgeDarken: 1
+    - _EdgeFalloff: 0.36
+    - _EdgeTopFalloff: 1.5
+    - _EdgeTopRadius: 0.9
+    - _EdgeWallClamp: 0.2
+    - _EdgeWallFalloff: 0.7
+    - _Edge_Darken: 0.221
+    - _Edge_Falloff: 0.59
+    - _GrassyWallSteps: 2
+    - _Grassy_Wall_Steps: 1.15
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _RockWallSteps: 9
+    - _Scale: 1.05
+    - _StepMetres: 0.25
+    - _TextureScale: 1
+    - _WallWidth: 1
+    m_Colors:
+    - _BorderColour: {r: 0, g: 0, b: 0, a: 1}
+    - _BorderColour2: {r: 0, g: 0, b: 0, a: 0.6}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
+--- !u!114 &1401908321055403211
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
+  version: 10
