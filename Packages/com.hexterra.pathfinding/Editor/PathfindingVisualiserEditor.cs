@@ -35,6 +35,15 @@ namespace HexTerra.Pathfinding.Editor
 
             EditorGUILayout.Space();
 
+            // Flip the A* route and the Dijkstra range outline together.
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("Show gizmos"))
+                    SetGizmosVisible(vis, true);
+                if (GUILayout.Button("Hide gizmos"))
+                    SetGizmosVisible(vis, false);
+            }
+
             // Reset the picked endpoints so the scene saves without a route baked in.
             if (GUILayout.Button("Clear start and goal") &&
                 (vis.start != Vector2Int.zero || vis.goal != Vector2Int.zero))
@@ -53,7 +62,7 @@ namespace HexTerra.Pathfinding.Editor
                 if (!map)
                     EditorGUILayout.HelpBox("No HexMap in the scene.", MessageType.Info);
                 else if (!map.CanGenerate)
-                    EditorGUILayout.HelpBox("The HexMap can't generate yet — assign its heightmap source.", MessageType.Info);
+                    EditorGUILayout.HelpBox("The HexMap can't generate yet: assign its heightmap source.", MessageType.Info);
                 else
                 {
                     EditorGUILayout.HelpBox(
@@ -89,6 +98,18 @@ namespace HexTerra.Pathfinding.Editor
                 EditorGUILayout.HelpBox("No route between the chosen hexes (blocked by terrain steeper than the traversal bands allow).", MessageType.Warning);
         }
 
+        private static void SetGizmosVisible(PathfindingVisualiser vis, bool visible)
+        {
+            if (vis.drawPath == visible && vis.drawReachable == visible)
+                return;
+
+            Undo.RecordObject(vis, visible ? "Show pathfinding gizmos" : "Hide pathfinding gizmos");
+            vis.drawPath = visible;
+            vis.drawReachable = visible;
+            EditorUtility.SetDirty(vis);
+            SceneView.RepaintAll();
+        }
+
         private void OnSceneGUI()
         {
             var vis = (PathfindingVisualiser)target;
@@ -105,8 +126,12 @@ namespace HexTerra.Pathfinding.Editor
             GUI.Label(new Rect(8, 8, 360, 18), "Click: set start   ·   Shift-click: set goal");
             Handles.EndGUI();
 
-            EndpointHandle(vis, graph, ref vis.start);
-            EndpointHandle(vis, graph, ref vis.goal);
+            // Drag handles are part of the route gizmo; the click-to-set handler below stays live.
+            if (vis.drawPath)
+            {
+                EndpointHandle(vis, graph, ref vis.start);
+                EndpointHandle(vis, graph, ref vis.goal);
+            }
 
             var e = Event.current;
             if (e.type != EventType.MouseDown || e.button != 0 || e.alt)

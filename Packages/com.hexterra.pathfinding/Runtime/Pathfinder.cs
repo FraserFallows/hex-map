@@ -31,8 +31,7 @@ namespace HexTerra.Pathfinding
         private HexDijkstra _reachability;
 
         /// <summary>
-        /// Rebuilds the graph and solvers for a freshly generated map. Wire this to
-        /// HexMap.mapGenerated.
+        /// Rebuilds the graph and solvers for a freshly generated map.
         /// </summary>
         public void RebuildGraph(HexMap map)
         {

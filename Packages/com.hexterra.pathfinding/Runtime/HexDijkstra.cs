@@ -4,10 +4,9 @@ using System.Collections.Generic;
 namespace HexTerra.Pathfinding
 {
     /// <summary>
-    /// Cost-bounded Dijkstra over a PathGraph: from a start node, every node reachable for a cost
-    /// of at most a given budget, each with that cost. One instance is bound to one graph and
-    /// reuses its working buffers across queries, so a single instance serves many queries but is
-    /// not thread-safe.
+    /// Cost-bounded Dijkstra over a PathGraph: from a start node, every node reachable within a
+    /// cost budget, each with its cost. Bound to one graph, reusing its buffers between queries,
+    /// so one instance serves many searches but is not thread-safe.
     /// </summary>
     public sealed class HexDijkstra
     {

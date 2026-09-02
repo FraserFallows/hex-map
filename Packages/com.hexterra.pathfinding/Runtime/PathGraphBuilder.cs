@@ -5,8 +5,7 @@ namespace HexTerra.Pathfinding
 {
     /// <summary>
     /// Builds a PathGraph from a generated map's cells: one node per cell, adjacency resolved by
-    /// axial coordinate against HexMath.Directions. Call once per generation, from a mapGenerated
-    /// subscriber.
+    /// axial coordinate against HexMath.Directions. Call once per generation.
     /// </summary>
     public static class PathGraphBuilder
     {

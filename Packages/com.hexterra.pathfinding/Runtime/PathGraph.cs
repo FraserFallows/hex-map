@@ -5,10 +5,9 @@ using UnityEngine;
 namespace HexTerra.Pathfinding
 {
     /// <summary>
-    /// Immutable snapshot of a generated hex map for pathfinding: one node per cell, addressed by
-    /// a dense index. Each node carries its axial coord, step height, the six neighbour indices in
-    /// HexMath.Directions order (-1 where the map has no cell on that side), and its world
-    /// position. Built once per generation.
+    /// Immutable snapshot of a generated hex map for pathfinding: one node per cell at a dense
+    /// index, each with its axial coord, step height, world position, and its six neighbour
+    /// indices. Built once per generation.
     /// </summary>
     public sealed class PathGraph
     {

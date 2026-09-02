@@ -12,6 +12,7 @@ namespace HexTerra.Pathfinding
     {
         public Vector2Int start;
         public Vector2Int goal;
+        public bool drawPath = true;
         public bool drawStepCosts = true;
         public bool drawReachable = true;
     }

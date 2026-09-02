@@ -54,11 +54,8 @@ namespace HexTerra.Pathfinding.Editor
             if (graph == null || graph.NodeCount == 0)
                 return;
 
-            Solve(pathfinder, graph, vis.start, vis.goal);
-
             int start = graph.IndexOf(vis.start);
             int goal = graph.IndexOf(vis.goal);
-            bool normal = _found || !_bothOnMap;
 
             if (vis.drawReachable && start >= 0)
             {
@@ -66,10 +63,20 @@ namespace HexTerra.Pathfinding.Editor
                 DrawReachableBorder(graph);
             }
 
-            if (start >= 0) Marker(graph.WorldPositionOf(start), normal ? StartColour : BlockedColour);
-            if (goal >= 0) Marker(graph.WorldPositionOf(goal), normal ? GoalColour : BlockedColour);
+            bool normal = true;
+            if (vis.drawPath)
+            {
+                Solve(pathfinder, graph, vis.start, vis.goal);
+                normal = _found || !_bothOnMap;
+            }
 
-            if (!_bothOnMap)
+            // Start disc shows for either query (it anchors the range outline); goal disc is route-only.
+            if (start >= 0 && (vis.drawPath || vis.drawReachable))
+                Marker(graph.WorldPositionOf(start), normal ? StartColour : BlockedColour);
+            if (goal >= 0 && vis.drawPath)
+                Marker(graph.WorldPositionOf(goal), normal ? GoalColour : BlockedColour);
+
+            if (!vis.drawPath || !_bothOnMap)
                 return;
 
             if (!_found)

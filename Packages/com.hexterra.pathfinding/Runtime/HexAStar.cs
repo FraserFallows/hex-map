@@ -5,10 +5,9 @@ using UnityEngine;
 namespace HexTerra.Pathfinding
 {
     /// <summary>
-    /// A* over a PathGraph. One instance is bound to one graph and reuses its working buffers
-    /// across queries, so a single solver serves many searches but is not thread-safe. The
-    /// heuristic is grid distance scaled by the model's base move cost, which stays admissible
-    /// and consistent as long as every band is non-negative.
+    /// A* over a PathGraph. Bound to one graph, reusing its buffers between queries, so one
+    /// solver serves many searches but is not thread-safe. The heuristic is grid distance
+    /// times the model's base move cost: admissible and consistent while every band is non-negative.
     /// </summary>
     public sealed class HexAStar
     {
