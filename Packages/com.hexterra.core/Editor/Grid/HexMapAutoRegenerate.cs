@@ -59,8 +59,9 @@ namespace HexTerra.Editor
             }
         }
 
-        // Only a HexMap's own properties or an edited NoisePreset should rebuild. Reacting to any
-        // other component's change stalls the editor on a full regenerate for every scene edit.
+        // Only a HexMap's own properties or an edited Heightmap / Surfacemap should rebuild.
+        // Reacting to any other component's change stalls the editor on a full regenerate for
+        // every scene edit.
         private static bool TouchesMapConfig(ref ObjectChangeEventStream stream, int index)
         {
             switch (stream.GetEventType(index))
@@ -76,7 +77,7 @@ namespace HexTerra.Editor
 
                 case ObjectChangeKind.ChangeAssetObjectProperties:
                     stream.GetChangeAssetObjectPropertiesEvent(index, out var asset);
-                    return EditorUtility.InstanceIDToObject(asset.instanceId) is NoisePreset;
+                    return EditorUtility.InstanceIDToObject(asset.instanceId) is Heightmap or Surfacemap;
 
                 default:
                     return false;
