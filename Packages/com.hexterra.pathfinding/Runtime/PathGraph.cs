@@ -21,8 +21,8 @@ namespace HexTerra.Pathfinding
 
         private const int Sides = 6;
 
-        // Arrays are stored as given, not copied: the caller must not mutate them afterwards.
-        // neighbours holds Sides entries per node at [node * Sides .. node * Sides + Sides).
+        // Arrays are stored by reference, not copied: the caller must not mutate them after construction.
+        // neighbours is flat: each node's Sides entries start at index node * Sides.
         public PathGraph(Vector2Int[] coords, int[] stepHeights, int[] neighbours, Vector3[] worldPositions)
         {
             _coords = coords;
